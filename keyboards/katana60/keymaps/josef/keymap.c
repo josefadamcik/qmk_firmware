@@ -20,6 +20,7 @@
 
 // Windows based definitions.
 #define K_SPCFN LT(SYMB, KC_SPACE) // Tap for space, hold for symbols layer
+#define K_BSPFN LT(SYMB, KC_BSPC)  // Tap for backspace, hold for symbols layer
 #define K_PRVWD LCTL(KC_LEFT)      // Previous word
 #define K_NXTWD LCTL(KC_RIGHT)     // Next word
 #define K_LSTRT KC_HOME            // Start of line
@@ -39,11 +40,11 @@
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [BASE] = LAYOUT( /* Base */
-  KC_ESC,  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    DF(1),   KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_PLUS,
+  KC_ESC,  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    DF(1),   KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,
   KC_TAB,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    KC_LBRC,          KC_RBRC, KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
-  MO(3),   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_HOME,          KC_PGUP, KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
-  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_END,  KC_DEL,  KC_PGDN, KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-  MO(2),   KC_LCTL, KC_LGUI, KC_LALT,                  KC_BSPC, KC_ENT,  K_SPCFN,           LEFT_MOD,DOWN_MOD,UP_MOD,   KC_RIGHT,MO(2)
+  MO(3),   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_MINS,          KC_QUOT, KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
+  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_EQL,  KC_DEL,  KC_BSLS, KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+  MO(2),   KC_LCTL, KC_LGUI, KC_LALT,                   K_BSPFN, KC_ENT,  KC_SPACE,           LEFT_MOD,DOWN_MOD,UP_MOD,   KC_RIGHT,MO(2)
   //MO(2),   KC_LCTL, KC_LALT, KC_LGUI,                   KC_BSPC, KC_ENT,  K_SPCFN,          KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,MO(2)
     ),
 [NUMB] = LAYOUT(
@@ -62,8 +63,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 [CURS] = LAYOUT(
   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-  _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, _______, K_PRVWD, KC_UP,   K_NXTWD, _______, _______,
-  _______, KC_LCTL, KC_WH_D, KC_LSFT, _______, _______, _______,          _______, KC_BSPC, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
+  _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, KC_PGUP, K_PRVWD, KC_UP,   K_NXTWD, _______, _______,
+  _______, KC_LCTL, KC_WH_D, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
   _______, UNDO,    CUT,     COPY,    PASTE,   _______, _______, _______, _______, _______, K_LSTRT, _______, K_LEND,  _______, _______,
   _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
     )
