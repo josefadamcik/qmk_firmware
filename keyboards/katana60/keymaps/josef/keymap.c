@@ -28,7 +28,9 @@
 #define CUT     LCTL(KC_X)         // CUT
 #define COPY    LCTL(KC_C)         // COPY
 #define PASTE   LCTL(KC_V)         // PASTE
-
+#define LEFT_MOD MT(MOD_RALT, KC_LEFT)
+#define DOWN_MOD MT(MOD_RGUI, KC_DOWN)
+#define UP_MOD MT(MOD_RCTL, KC_UP)
 
 #define BASE 0 // Default
 #define NUMB 1 // Numbers
@@ -41,7 +43,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    KC_LBRC,          KC_RBRC, KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
   MO(3),   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_HOME,          KC_PGUP, KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
   KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_END,  KC_DEL,  KC_PGDN, KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-  MO(2),   KC_LCTL, KC_LALT, KC_LGUI,                   KC_BSPC, KC_ENT,  K_SPCFN,          KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,MO(2)
+  MO(2),   KC_LCTL, KC_LGUI, KC_LALT,                  KC_BSPC, KC_ENT,  K_SPCFN,           LEFT_MOD,DOWN_MOD,UP_MOD,   KC_RIGHT,MO(2)
+  //MO(2),   KC_LCTL, KC_LALT, KC_LGUI,                   KC_BSPC, KC_ENT,  K_SPCFN,          KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,MO(2)
     ),
 [NUMB] = LAYOUT(
   _______, _______, _______, _______, _______, _______, _______, DF(0),   KC_PSLS, KC_PAST, KC_PMNS, _______, _______, _______, _______,
