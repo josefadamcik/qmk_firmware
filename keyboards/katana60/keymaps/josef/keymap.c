@@ -18,20 +18,30 @@
 #define _______ KC_TRNS
 #define XXXXXXX KC_NO
 
-// Windows based definitions.
+
 #define K_SPCFN LT(SYMB, KC_SPACE) // Tap for space, hold for symbols layer
 #define K_BSPFN LT(SYMB, KC_BSPC)  // Tap for backspace, hold for symbols layer
-#define K_PRVWD LCTL(KC_LEFT)      // Previous word
-#define K_NXTWD LCTL(KC_RIGHT)     // Next word
-#define K_LSTRT KC_HOME            // Start of line
-#define K_LEND  KC_END             // End of line
-#define UNDO    LCTL(KC_Z)         // UNDO
-#define CUT     LCTL(KC_X)         // CUT
-#define COPY    LCTL(KC_C)         // COPY
-#define PASTE   LCTL(KC_V)         // PASTE
 #define LEFT_MOD MT(MOD_RGUI, KC_LEFT)
 #define DOWN_MOD MT(MOD_RALT, KC_DOWN)
 #define UP_MOD MT(MOD_RCTL, KC_UP)
+//linux
+// #define UNDO    LCTL(KC_Z)         // UNDO
+// #define CUT     LCTL(KC_X)         // CUT
+// #define COPY    LCTL(KC_C)         // COPY
+// #define PASTE   LCTL(KC_V)         // PASTE
+// #define K_PRVWD LCTL(KC_LEFT)   // Previous word
+// #define K_NXTWD LCTL(KC_RIGHT)  // Next word
+// #define K_LSTRT KC_HOME         // Start of line
+// #define K_LEND KC_END           // End of line
+//mac
+#define UNDO LGUI(KC_Z)            // UNDO
+#define CUT LGUI(KC_X)             // CUT
+#define COPY LGUI(KC_C)            // COPY
+#define PASTE LGUI(KC_V)           // PASTE
+#define K_PRVWD LALT(KC_LEFT)      // Previous word
+#define K_NXTWD LALT(KC_RIGHT)     // Next word
+#define K_LSTRT LGUI(KC_LEFT)      // Start of line
+#define K_LEND LGUI(KC_RIGHT)      // End of line
 
 #define BASE 0 // Default
 #define NUMB 1 // Numbers
