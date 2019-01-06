@@ -110,15 +110,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 [_M_EXT] = LAYOUT(
   RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,_______,_______, _______, _______, _______, _______, _______, _______, _______, _______,
-  _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, KC_PGUP, M_PRVWD, KC_UP,   M_NXTWD, _______, _______,
-  _______, KC_LALT, KC_WH_D, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
+  _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, M_PRVWD, KC_UP,   M_NXTWD, _______, _______,
+  _______, KC_LALT, KC_LCTL, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
   _______, M_UNDO,  M_CUT,   M_COPY,  M_PASTE, _______, _______, _______, _______, _______, M_LSTRT, _______, M_LEND,  _______, _______,
   _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
 ),
 [_W_EXT] = LAYOUT(
   RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,_______,_______, _______, _______, _______, _______, _______, _______, _______, _______,
-  _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, KC_PGUP, W_PRVWD, KC_UP,   W_NXTWD, _______, _______,
-  _______, KC_LALT, KC_WH_D, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
+  _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, W_PRVWD, KC_UP,   W_NXTWD, _______, _______,
+  _______, KC_LALT, KC_LCTL, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
   _______, W_UNDO,  W_CUT,   W_COPY,  W_PASTE, _______, _______, _______, _______, _______, W_LSTRT, _______, W_LEND,  _______, _______,
   _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
 )

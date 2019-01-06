@@ -1,4 +1,4 @@
-![Multi OS Katana60 layout image](https://i.imgur.com/KJMIeEv.png)
+![Multi OS Katana60 layout image](https://imgur.com/qQtYqPy)
 
 # Multi OS Katana60 layout
 
