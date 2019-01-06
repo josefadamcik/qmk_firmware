@@ -23,7 +23,8 @@ enum katana_layers {
   _QWERTY, 
   _NUMB,
   _SYMB,
-  _EXT
+  _M_EXT, /* mac */
+  _W_EXT /* win/linux */
 };
 
 enum katana_keycodes {
@@ -36,39 +37,39 @@ enum katana_keycodes {
 #define LEFT_MOD MT(MOD_RGUI, KC_LEFT)
 #define DOWN_MOD MT(MOD_RALT, KC_DOWN)
 #define UP_MOD MT(MOD_RCTL, KC_UP)
-//linux/wsin
-// #define UNDO    LCTL(KC_Z)         // UNDO
-// #define CUT     LCTL(KC_X)         // CUT
-// #define COPY    LCTL(KC_C)         // COPY
-// #define PASTE   LCTL(KC_V)         // PASTE
-// #define K_PRVWD LCTL(KC_LEFT)   // Previous word
-// #define K_NXTWD LCTL(KC_RIGHT)  // Next word
-// #define K_LSTRT KC_HOME         // Start of line
-// #define K_LEND KC_END           // End of line
+//linux/win
+#define W_UNDO    LCTL(KC_Z)         // UNDO
+#define W_CUT     LCTL(KC_X)         // CUT
+#define W_COPY    LCTL(KC_C)         // COPY
+#define W_PASTE   LCTL(KC_V)         // PASTE
+#define W_PRVWD LCTL(KC_LEFT)   // Previous word
+#define W_NXTWD LCTL(KC_RIGHT)  // Next word
+#define W_LSTRT KC_HOME         // Start of line
+#define W_LEND KC_END           // End of line
 //mac
-#define UNDO LGUI(KC_Z)            // UNDO
-#define CUT LGUI(KC_X)             // CUT
-#define COPY LGUI(KC_C)            // COPY
-#define PASTE LGUI(KC_V)           // PASTE
-#define K_PRVWD LALT(KC_LEFT)      // Previous word
-#define K_NXTWD LALT(KC_RIGHT)     // Next word
-#define K_LSTRT LGUI(KC_LEFT)      // Start of line
-#define K_LEND LGUI(KC_RIGHT)      // End of line
+#define M_UNDO LGUI(KC_Z)            // UNDO
+#define M_CUT LGUI(KC_X)             // CUT
+#define M_COPY LGUI(KC_C)            // COPY
+#define M_PASTE LGUI(KC_V)           // PASTE
+#define M_PRVWD LALT(KC_LEFT)      // Previous word
+#define M_NXTWD LALT(KC_RIGHT)     // Next word
+#define M_LSTRT LGUI(KC_LEFT)      // Start of line
+#define M_LEND LGUI(KC_RIGHT)      // End of line
 
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_COLEMAK] = LAYOUT(
-  KC_ESC,   KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,   TG(_NUMB),KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,
-  KC_TAB,   KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    KC_LBRC,          KC_RBRC, KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
-  MO(_EXT), KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_MINS,          KC_QUOT, KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
-  KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_EQL,  KC_DEL,  KC_BSLS, KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-  MO(_SYMB),KC_LCTL, KC_LALT, KC_LGUI,                   K_BSPFN, KC_ENT,  KC_SPACE,         LEFT_MOD,DOWN_MOD,UP_MOD,  KC_RIGHT,MO(_SYMB)
+  KC_ESC,    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,   TG(_NUMB),KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,
+  KC_TAB,    KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    KC_LBRC,          KC_RBRC, KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
+  MO(_M_EXT),KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_MINS,          KC_QUOT, KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
+  KC_LSFT,   KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_EQL,  KC_DEL,  KC_BSLS, KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+  MO(_SYMB), KC_LCTL, KC_LALT, KC_LGUI,                   K_BSPFN, KC_ENT,  KC_SPACE,         LEFT_MOD,DOWN_MOD,UP_MOD,  KC_RIGHT,MO(_SYMB)
 ),
 [_QWERTY] = LAYOUT(
   KC_ESC,   KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,   TG(_NUMB),KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,
   KC_TAB,   KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
-  MO(_EXT), KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_MINS,          KC_QUOT, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_ENT,
+  MO(_M_EXT), KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_MINS,          KC_QUOT, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_ENT,
   KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_EQL,  KC_DEL,  KC_BSLS, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
   MO(_SYMB),KC_LCTL, KC_LALT, KC_LGUI,                   K_BSPFN, KC_ENT,  KC_SPACE,         LEFT_MOD,DOWN_MOD,UP_MOD,   KC_RIGHT,MO(_SYMB)
 ),
@@ -86,11 +87,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, KC_PLUS, KC_MINS, KC_EQL,  KC_LCBR, KC_RCBR, KC_MPRV, KC_MPLY, KC_MNXT, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS, _______,
   _______, _______, _______, _______,                   KC_DEL,  _______, _______,          _______, _______, _______, _______, _______
 ),
-[_EXT] = LAYOUT(
+[_M_EXT] = LAYOUT(
   RESET  , COLEMAK, QWERTY , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-  _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, KC_PGUP, K_PRVWD, KC_UP,   K_NXTWD, _______, _______,
+  _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, KC_PGUP, M_PRVWD, KC_UP,   M_NXTWD, _______, _______,
   _______, KC_LCTL, KC_WH_D, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
-  _______, UNDO,    CUT,     COPY,    PASTE,   _______, _______, _______, _______, _______, K_LSTRT, _______, K_LEND,  _______, _______,
+  _______, M_UNDO,  M_CUT,   M_COPY,  M_PASTE, _______, _______, _______, _______, _______, M_LSTRT, _______, M_LEND,  _______, _______,
+  _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
+),
+[_W_EXT] = LAYOUT(
+  RESET  , COLEMAK, QWERTY , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+  _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, KC_PGUP, W_PRVWD, KC_UP,   W_NXTWD, _______, _______,
+  _______, KC_LCTL, KC_WH_D, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
+  _______, W_UNDO,  W_CUT,   W_COPY,  W_PASTE, _______, _______, _______, _______, _______, W_LSTRT, _______, W_LEND,  _______, _______,
   _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
 )
 
@@ -98,7 +106,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 const uint16_t PROGMEM fn_actions[] = {
-    [0] = ACTION_LAYER_TAP_KEY(_EXT, KC_BSPC),
+    [0] = ACTION_LAYER_TAP_KEY(_M_EXT, KC_BSPC),
     [1] = ACTION_LAYER_TAP_KEY(_SYMB, KC_SPACE),
 };
 
