@@ -87,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, _______, _______, _______,                   KC_DEL,  _______, _______,          _______, _______, _______, _______, _______
 ),
 [_EXT] = LAYOUT(
-  RESET  , DF(_COLEMAK), DF(_QWERTY) , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+  RESET  , COLEMAK, QWERTY , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
   _______, _______, KC_WH_U, _______, _______, _______, _______,          _______, KC_PGUP, K_PRVWD, KC_UP,   K_NXTWD, _______, _______,
   _______, KC_LCTL, KC_WH_D, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
   _______, UNDO,    CUT,     COPY,    PASTE,   _______, _______, _______, _______, _______, K_LSTRT, _______, K_LEND,  _______, _______,
@@ -127,6 +127,20 @@ void matrix_scan_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  switch (keycode) {
+    case QWERTY:
+      if (record->event.pressed) {
+        set_single_persistent_default_layer(_QWERTY);
+      }
+      return false;
+      break;
+    case COLEMAK:
+      if (record->event.pressed) {
+        set_single_persistent_default_layer(_COLEMAK);
+      }
+      return false;
+      break;
+  }
   return true;
 }
 
