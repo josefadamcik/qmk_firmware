@@ -1,4 +1,4 @@
-![Multi OS Katana60 layout image](https://i.imgur.com/qQtYqPy.png)
+![Multi OS Katana60 layout image](https://i.imgur.com/1w2OA1o.png)
 
 # Multi OS Katana60 layout
 
@@ -11,5 +11,5 @@ Mac versus Win/Linux layers:
 
 - modifiers are ordered differently. Mac version has (from middle to outer) CMD, ALT, CTRL, win/linux version has CTRL, ALT, CMD. It's meant to make switching between platforms easier. I'll still require some keymap changes in various software, but it does help with the biggest problem where main modifier for shortcuts on linux is usually ctrl but on mac it's cmd.
 - Extend layer is different, so keys for "previous/next word" and "copy",   "paste", "cut", and "undo" work properly. 
-
+.
 
