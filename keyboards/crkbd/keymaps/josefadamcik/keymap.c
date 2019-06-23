@@ -52,6 +52,8 @@ enum macro_keycodes {
 #define KC_LVAD  RGB_VAD
 #define KC_LMOD  RGB_MOD
 #define KC_CTLTB CTL_T(KC_TAB)
+#define KC_GUITB GUI_T(KC_TAB)
+
 #define KC_K_BSPFN LT(_SYMB, KC_BSPC)  /* Tap for backspace, hold for symbols layer */
 /* Linux/win variants */
 #define KC_W_UND LCTL(KC_Z)
@@ -78,23 +80,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------.                ,-----------------------------------------.
         ESC,     Q,     W,     F,     P,     G,                      J,     L,     U,     Y,  SCLN,  BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      CTLTB,     A,     R,     S,     T,     D,                      H,     N,     E,     I,     O,   ENT,\
+      GUITB,     A,     R,     S,     T,     D,                      H,     N,     E,     I,     O,   ENT,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
        LSFT,     Z,     X,     C,     V,     B,                      K,     M,  COMM,   DOT,  SLSH,  RSFT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  LGUI, LOWER,   ENT,   SPC, RAISE, RALT \
+                                  LCTL, LOWER,   ENT,   SPC, RAISE, RALT \
                               //`--------------------'  `--------------------'
   ),
 
   [_LOWER] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-        GRV,    F1,    F2,    F3,    F4,    F5,                     F6,    F7,    F8,    F9,   F10,  BSPC,\
+         F1,    F2,    F3,    F4,    F5,    F6,                     F7,    F8,    F9,   F10,   F11,  F12,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      CTLTB,     1,     2,     3,     4,     5,                      6,     7,     8,     9,     0, XXXXX,\
+      GUITB,     1,     2,     3,     4,     5,                      6,     7,     8,     9,     0, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       LSFT, XXXXX, XXXXX, XXXXX,  MINS,   EQL,                  LBRC,  RBRC, XXXXX, XXXXX, XXXXX, RSFT,\
+       LSFT, GRV, XXXXX, XXXXX,  MINS,   EQL,                   LBRC,  RBRC, QUOT, XXXXX, BSLS, RSFT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  LGUI, LOWER,   SPC,      ENT, RAISE, RALT \
+                                  LCTL, LOWER,   SPC,      ENT, RAISE, RALT \
                               //`--------------------'  `--------------------'
   ),
 
@@ -102,11 +104,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------.                ,-----------------------------------------.
         ESC, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                  PGUP , W_PWD,    UP, W_NWD, XXXXX, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      CTLTB,  LALT,  LCTL,  LSFT, XXXXX,  CAPS,                  PGDN ,  LEFT,  DOWN, RIGHT,   DEL, XXXXX,\
+      GUITB,  LALT,  LCTL,  LSFT, XXXXX,  CAPS,                  PGDN ,  LEFT,  DOWN, RIGHT,   DEL, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
        LSFT, W_UND, W_CUT, W_CPY, W_PST, XXXXX,                  XXXXX,W_LSTR, XXXXX,W_LEND, XXXXX, RSFT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  LGUI, LOWER,   SPC,      ENT, RAISE, RALT \
+                                  LCTL, LOWER,   SPC,      ENT, RAISE, RALT \
                               //`--------------------'  `--------------------'
   ),
 
@@ -118,7 +120,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
        LMOD,  LHUD,  LSAD,  LVAD, XXXXX, XXXXX,                  XXXXX, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                 LGUI, LOWER,   SPC,      ENT, RAISE, RALT \
+                                 LCTL, LOWER,   SPC,      ENT, RAISE, RALT \
                               //`--------------------'  `--------------------'
   )
 };
