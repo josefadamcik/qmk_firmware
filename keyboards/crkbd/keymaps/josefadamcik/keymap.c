@@ -74,17 +74,26 @@ enum macro_keycodes {
 #define KC_M_LSTR LGUI(KC_LEFT)
 #define KC_M_LEND LGUI(KC_RIGHT)
 
+#define KC_GUIZ LGUI_T(KC_Z)
+#define KC_ALTX LALT_T(KC_X)
+#define KC_ALTDOT RALT_T(KC_DOT)
+#define KC_GUISLSH RGUI_T(KC_SLSH)
+
+#define KC_GUIEQ LGUI_T(KC_EQUAL)
+#define KC_ALTMINS LALT_T(KC_MINS)
+#define KC_ALTCOLN RALT_T(KC_COLN)
+#define KC_GUIBSLS RGUI_T(KC_BSLS)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
         ESC,     Q,     W,     F,     P,     G,                      J,     L,     U,     Y,  SCLN,  BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      GUITB,     A,     R,     S,     T,     D,                      H,     N,     E,     I,     O,  QUOT,\
+       TAB,     A,     R,     S,     T,     D,                      H,     N,     E,     I,     O,  QUOT,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       LSFT,     Z,     X,     C,     V,     B,                      K,     M,  COMM,   DOT,  SLSH,  RSFT,\
+       LSFT,  GUIZ,  ALTX,     C,     V,     B,                      K,     M,  COMM, ALTDOT,GUISLSH,  RSFT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  LCTL, LOWER,   ENT,   SPC, RAISE, RALT \
+                                  LCTL, LOWER,   ENT,   SPC, RAISE, RCTL \
                               //`--------------------'  `--------------------'
   ),
 
@@ -94,21 +103,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
       GRV,   EXLM,    AT,  HASH,   DLR,  PERC,                   CIRC,  AMPR,  ASTR,  LPRN,  RPRN,  DQT,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       LSFT,  PLUS,  MINS,   EQL,  LCBR,  RCBR,                   LBRC,  RBRC,  SCLN,  COLN,  BSLS, RSFT,\
+       LSFT, GUIEQ,ALTMINS, PLUS,  LCBR,  RCBR,                   LBRC,  RBRC,  SCLN,ALTCOLN,GUIBSLS, RSFT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  LCTL, LOWER,   ENT,      SPC, RAISE, RALT \
+                                  LCTL, LOWER,   ENT,      SPC, RAISE, RCTL \
                               //`--------------------'  `--------------------'
   ),
 
   [_RAISE] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-        ESC, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                  PGUP , W_PWD,    UP, W_NWD, XXXXX, XXXXX,\
+        ESC, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                  PGUP , W_PWD,    UP, W_NWD, XXXXX, BSPC,\
   //|------+------+------+------+------+------|                |-u-----+------+------+------+------+------|
-      GUITB,  LALT,  LCTL,  LSFT, XXXXX,  CAPS,                  PGDN ,  LEFT,  DOWN, RIGHT,   DEL, XXXXX,\
+       TAB,  LALT,  LCTL,  LSFT, XXXXX,  CAPS,                  PGDN ,  LEFT,  DOWN, RIGHT,   DEL, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
        LSFT, W_UND, W_CUT, W_CPY, W_PST, XXXXX,                  XXXXX,W_LSTR, XXXXX,W_LEND, XXXXX, RSFT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  LCTL, LOWER,   ENT,      SPC, RAISE, RALT \
+                                  LCTL, LOWER,   ENT,      SPC, RAISE, RCTL \
                               //`--------------------'  `--------------------'
   ),
 
@@ -120,7 +129,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
       XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,  XXXXX,                  XXXXX, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                 LCTL, LOWER,   ENT,      SPC, RAISE, RALT \
+                                 LCTL, LOWER,   ENT,      SPC, RAISE, RCTL \
                               //`--------------------'  `--------------------'
   )
 };
