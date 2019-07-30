@@ -28,7 +28,7 @@ bool process_leader(uint16_t keycode, keyrecord_t *record);
   else if (lead_seq_size == lead_size) { LEAD_TAP_IF(x1, x2, x3, x4, x5, keycode) }
 
 // Generates code for leader sequences that execute keycodes
-#define LEAD1_TAP(kc1, keycode) if (lead_seq_size == 1) { LEAD_TAP_IF(kc1, 0 , 0, 0, 0, keycode) }
+#define LEAD1_TAP(kc1, keycode) if (lead_seq_size == 0) { LEAD_TAP_IF(kc1, 0 , 0, 0, 0, keycode) }
 #define LEAD2_TAP(kc1, kc2, keycode)                LEAD_TAP_FILTER(kc1, kc2, 0,   0,   0,   keycode, 1)
 #define LEAD3_TAP(kc1, kc2, kc3, keycode)           LEAD_TAP_FILTER(kc1, kc2, kc3, 0,   0,   keycode, 2)
 #define LEAD4_TAP(kc1, kc2, kc3, kc4, keycode)      LEAD_TAP_FILTER(kc1, kc2, kc3, kc4, 0,   keycode, 3)
@@ -41,7 +41,7 @@ bool process_leader(uint16_t keycode, keyrecord_t *record);
   else if (lead_seq_size == lead_size && LEAD_CHECK(x1, x2, x3, x4, x5))
 
 // Generates code for leader sequences that execute arbitary code
-#define LEAD1(kc1) if (lead_seq_size == 1 && LEAD_CHECK(kc1, 0, 0, 0, 0))
+#define LEAD1(kc1) if (lead_seq_size == 0 && LEAD_CHECK(kc1, 0, 0, 0, 0))
 #define LEAD2(kc1, kc2)                LEAD_FILTER(kc1, kc2, 0,   0,   0,   1)
 #define LEAD3(kc1, kc2, kc3)           LEAD_FILTER(kc1, kc2, kc3, 0,   0,   2)
 #define LEAD4(kc1, kc2, kc3, kc4)      LEAD_FILTER(kc1, kc2, kc3, kc4, 0,   3)
