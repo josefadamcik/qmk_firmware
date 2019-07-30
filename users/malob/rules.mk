@@ -1,1 +1,2 @@
-SRC += leader.c 
+SRC += leader.c \
+			 vim.c
