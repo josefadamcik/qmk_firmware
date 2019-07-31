@@ -3,10 +3,11 @@
 // Includes and externs {{{
 #include "crkbd.h"  // specify file directly to make ccls happy
 #include "leader.h" // custom leader implementation from users/malob
-#include "vim.h"
+#include "vim.h"    // Vim mode implementation from users/malob
 
 extern keymap_config_t keymap_config;
 LEAD_EXTERNS(); // needed for custom leader implementation
+VIM_EXTERNS();  // needed for vim mode
 // }}}
 
 // Custom keycodes {{{
@@ -126,8 +127,8 @@ static void print_status(void) {
   if (leading) {
     oled_write_ln_P(PSTR("LEADING"), false);
   }
-  else if (vim_current_state() != INSERT) {
-    switch (vim_current_state()) {
+  else if (vim_mode != INSERT) {
+    switch (vim_mode) {
       case NORMAL: oled_write_ln_P(PSTR("NORMAL"), false); break;
       case REPLACE: oled_write_ln_P(PSTR("REPLACE"), false); break;
     }
@@ -193,7 +194,7 @@ bool check_leaders(void) {
 
   // Turn on Vim mode
   LEAD1(LEAD) {
-    vim_set_state(NORMAL);
+    vim_mode = NORMAL;
     return false;
   }
 

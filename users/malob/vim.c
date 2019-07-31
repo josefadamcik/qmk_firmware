@@ -1,956 +1,395 @@
-// vim: foldmethod=marker
+// WIP implementation of Vim commands using QMK macros on macOS
 #include "vim.h"
 
-// Vim helpers {{{
+/** Current Vim mode, must be a value from the `vim_modes` enum. */
+uint8_t vim_mode = INSERT;
 
-uint8_t _vim_state = INSERT;
-uint8_t _vim_find_direction = FORWARD;
+/** Whether find should search forward or backward. */
+bool vim_find_forward = true;
 
-/**
- * Retrives the currents `vim_state`.
- * @return `vim_state`: a `uint8_t` defined in `vim_states enum`
- * @see `vim_set_state()`
- */
-uint8_t vim_current_state(void)  { return _vim_state; }
+/** Whether put should paste incline or on newline. */
+bool vim_put_inline = true;
 
-/**
- * Sets `vim_state`.
- * @param `vim_state`: a `uint8_t` defined in `vim_states enum`
- * @see `vim_current_state()`
- */
-void vim_set_state(uint8_t s) { _vim_state = s; }
-
-uint8_t vim_find_direction(void) { return _vim_find_direction; }
-
-void vim_set_find_direction(uint8_t d) { _vim_find_direction = d; }
-
-uint16_t add_shift_if_pressed(uint16_t kc) { return (get_mods() & MOD_MASK_SHIFT) ? S(kc) : kc; }
-uint16_t add_ctlr_if_pressed(uint16_t kc) { return (get_mods() & MOD_MASK_CTRL) ? C(kc) : kc; }
-uint16_t add_gui_if_pressed(uint16_t kc) { return (get_mods() & MOD_MASK_GUI) ? G(kc) : kc; }
-uint16_t add_alt_if_pressed(uint16_t kc) { return (get_mods() & MOD_MASK_ALT) ? A(kc) : kc; }
+/** Hack to add mods currently pressed to keycode */
 uint16_t add_mods_pressed(uint16_t kc) {
   return add_shift_if_pressed(add_ctlr_if_pressed(add_gui_if_pressed(add_alt_if_pressed(kc))));
 }
 
-#ifndef VIM_TO_TILL_WAIT
-  #define VIM_TO_TILL_WAIT 1000
-#endif
-// }}}
-
-// Vim Mode keycode processing {{{
+//Helper functions for the above
+uint16_t add_shift_if_pressed(uint16_t kc) { return (get_mods() & MOD_MASK_SHIFT) ? S(kc) : kc; }
+uint16_t add_ctlr_if_pressed(uint16_t kc)  { return (get_mods() & MOD_MASK_CTRL)  ? C(kc) : kc; }
+uint16_t add_gui_if_pressed(uint16_t kc)   { return (get_mods() & MOD_MASK_GUI)   ? G(kc) : kc; }
+uint16_t add_alt_if_pressed(uint16_t kc)   { return (get_mods() & MOD_MASK_ALT)   ? A(kc) : kc; }
 
 /**
- * This function should be called from `process_record_user()`, to enable simunating Vim commands.
+ * This function should be called from `process_record_user()`, to enable simulating Vim commands.
  * It's return value follows QMKs convention for `proces_record_*` functions, i.e., it returns
- * `true` signal that QMK should continue to process the key event as normal, and returns
- * `false` otherwise.
+ * `true` signal that QMK should continue to process the key event as normal, and returns `false`
+ * otherwise.
  *
- * @param `kc`: a QMK keycode (uint16_t)
+ * If `vim_mode` is `INSERT` then function returns `true` indicating that QMK should process the
+ * keycode event as it normally would. Otherwise if uses `keycode` and `vim_mode` to determine which
+ * Vim command to execute.
+ *
+ * If keycode does not have a corresponding macro in the current state, the state is set to `NORMAL`
+ * and no action is performed.
+ *
+ * @param `keycode`: a QMK keycode (uint16_t)
  * @param `*record`: a pointer to the `keyrecord_t` struct.
  * @return `bool`
- * @see `vim_exec_macro()`
  */
 bool process_record_vim(uint16_t kc, keyrecord_t *record) {
-  if (vim_current_state() == INSERT) { return true; }
 
-  switch (kc) {
-    case KC_A ... KC_SLASH:
-      if (record->event.pressed) { return vim_exec_macro(kc); }
-      return true;
+  if (vim_mode == INSERT) { return true; }
 
-    case KC_HOME ... KC_UP:
-      if (record->event.pressed) { return vim_exec_macro(kc); }
-      return true;
-
-    default:
-      return true;
+  // Filter layer/mod tap bits off
+  if ((kc >= QK_MOD_TAP && kc <= QK_MOD_TAP_MAX) || (kc >= QK_LAYER_TAP && kc <= QK_LAYER_TAP_MAX)) {
+    kc = kc & 0xFF;
   }
-}
 
-/**
- * Manages `_vim_state` and executes Vim command macros based on normal keycode.
- *
- * If the state is `INSERT` then function returns `true` indicating that QMK should process the
- * keycode event as is normally would, unless the keycode was `VIM` in which case the state is
- * changed to normal.
- *
- * Otherwise, if keycode does not have a corresponding macro in the current state, the state is set
- * to `NORMAL` and no action is performed.
- *
- * @param `kc`: a QMK keycode (uint16_t)
- * @return `bool`
- * @see `vim_cmd()` for details on how macro functions are executed.
- */
-bool vim_exec_macro(uint16_t keycode) {
+  // TODO: this filter is probably not sufficient
+  if ( record->event.pressed
+    && ( (kc >= KC_A    && kc <= KC_SLASH)
+      || (kc >= KC_HOME && kc <= KC_UP)
+      || (kc >= S(KC_A) && kc <= S(KC_SLASH))
+      || (kc >= C(KC_A) && kc <= C(KC_SLASH))
+       )
+     )
+  {
 
-  uint16_t kc = add_mods_pressed(keycode);
+    // Add mods to so we can match on them.
+    kc = add_mods_pressed(kc);
 
-  switch (vim_current_state()) {
+    // Save modes and clear them so they aren't help when we send Vim commands.
+    uint8_t current_mods = get_mods();
+    clear_mods();
 
-    case INSERT:
-    // Normal state
-    case NORMAL:
-      switch (kc) {
-        case KC_A:    vim_cmd(vim_right           , INSERT); break;
-        case S(KC_A): vim_cmd(vim_line_end        , INSERT); break;
-        case KC_B:    vim_cmd(vim_word_back       , NORMAL); break;
-        case KC_C:    vim_set_state(                NORM_c); break;
-        case S(KC_C): vim_cmd(vim_chg_line        , INSERT); break;
-        case KC_D:    vim_set_state(                NORM_d); break;
-        case S(KC_D): vim_cmd(vim_del_to_line_end , NORMAL); break;
-        case KC_E:    vim_cmd(vim_word_end        , NORMAL); break;
-        case KC_F:    vim_set_state(                NORM_f); break;
-        case S(KC_F): vim_set_state(                NORM_F); break;
-        case KC_G:    vim_set_state(                NORM_g); break;
-        case S(KC_G): vim_cmd(vim_goto_line_last  , NORMAL); break;
-        case KC_H:    vim_cmd(vim_left            , NORMAL); break;
-        case KC_I:    vim_set_state(                INSERT); break;
-        case S(KC_I): vim_cmd(vim_line_first      , INSERT); break;
-        case KC_J:    vim_cmd(vim_down            , NORMAL); break; // actually behaves like `gj`
-      //case S(KC_J): vim_cmd(vim_join_line       , NORMAL); break;
-        case KC_K:    vim_cmd(vim_up              , NORMAL); break; // actually behaves like `gk`
-        case S(KC_K): vim_cmd(vim_lookup          , NORMAL); break;
-        case KC_L:    vim_cmd(vim_right           , NORMAL); break;
-        case KC_N:    (vim_find_direction() ==      FORWARD)
-                    ? vim_cmd(vim_find_next       , NORMAL)
-                    : vim_cmd(vim_find_prev       , NORMAL); break;
-        case S(KC_N): (vim_find_direction() ==      BACKWARD)
-                    ? vim_cmd(vim_find_prev       , NORMAL)
-                    : vim_cmd(vim_find_next       , NORMAL); break;
-        case KC_O:    vim_cmd(vim_open            , INSERT); break;
-        case S(KC_O): vim_cmd(vim_open_above      , INSERT); break;
-        case KC_P:    vim_cmd(vim_put             , NORMAL); break;
-      //case S(KC_P)  vim_cmd(vim_put_above       , NORMAL); break;
-        case KC_R:    vim_cmd(vim_replace_start   , NORM_r); break;
-        case S(KC_R): vim_cmd(vim_replace_start   , REPLACE);break;
-        case C(KC_R): vim_cmd(vim_redo            , NORMAL); break;
-        case KC_S:    vim_cmd(vim_chg_right       , INSERT); break;
-        case S(KC_S): vim_cmd(vim_chg_line        , INSERT); break;
-        case KC_T:    vim_set_state(                NORM_t); break;
-        case S(KC_T): vim_set_state(                NORM_T); break;
-        case KC_U:    vim_cmd(vim_undo            , NORMAL); break;
-      //case KC_V     vim_set_state(                VISUAL); break;
-      //case S(KC_V)  vim_set_state(                VIS_LN): break;
-        case KC_W:    vim_cmd(vim_word            , NORMAL); break;
-        case KC_X:    vim_cmd(vim_chg_right       , NORMAL); break;
-        case S(KC_X): vim_cmd(vim_chg_left        , NORMAL); break;
-        case KC_Y:    vim_set_state(                NORM_y); break;
-        case S(KC_Y): vim_cmd(vim_yank_line       , NORMAL); break;
-        case KC_0:    vim_cmd(vim_line_first      , NORMAL); break;
-        case KC_DLR:  vim_cmd(vim_line_end        , NORMAL); break;
-        case KC_HASH: vim_set_find_direction(       BACKWARD);
-                      vim_cmd(vim_find_word       , NORMAL); break;
-        case KC_ASTR: vim_set_find_direction(       FORWARD);
-                      vim_cmd(vim_find_word       , NORMAL); break;
-        case KC_MINS: vim_cmd(vim_line_up         , NORMAL); break;
-        case KC_PLUS: vim_cmd(vim_line_down       , NORMAL); break;
-        case KC_BSPC: vim_cmd(vim_left            , NORMAL); break;
-        case KC_DEL:  vim_cmd(vim_chg_right       , NORMAL); break;
-        case KC_ENT:  vim_cmd(vim_line_down       , NORMAL); break;
-      //case KC_SCLN
-        case KC_COLN: vim_cmd(vim_command         , INSERT); break;
-      //case KC_COMM
-      //case KC_LT
-      //case KC_RT
-        case KC_SLSH: vim_set_find_direction(       FORWARD);
-                      vim_cmd(vim_find            , INSERT); break;
-        case KC_QUES: vim_set_find_direction(       BACKWARD);
-                      vim_cmd(vim_find            , INSERT); break;
-        case KC_SPC:  vim_cmd(vim_right           , NORMAL); break;
-        case KC_LEFT: vim_cmd(vim_left            , NORMAL); break;
-        case KC_UP:   vim_cmd(vim_up              , NORMAL); break;
-        case KC_DOWN: vim_cmd(vim_down            , NORMAL); break;
-        case KC_RGHT: vim_cmd(vim_right           , NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-        // Not possible because we can't do Word movements in macOS
-        // case S(KC_B)
-        // case S(KC_E)
-        // case S(KC_W)
-        // Not possible because we can't move relative to what's vibible in the window
-        // case S(KC_H)
-        // case S(KS_L)
-        // case S(KC_M)
-        // Not possible because no way to do mark stuff
-        // case KC_M
-        // case KC_GRV
-        // case KC_QUOT
-        // Not possible for other reasons
-        // case S(KC_Q) no Ex mode
-        // case S(KC_U)
-        // case KC_TILD no way to toggle case
-        // case KC_PERC can't know enough context of surounding delimeters
-        // case KC_CIRC can't can only go to begining of line inclusive of whitespace
-        // case KC_AMPR can't guarentee that last substitution will rememberable
-        // case KC_BSLS not a thing
-        // case KC_DQUO no concept of registers
-        // case KC_DOT no way to reliably track previous insertion
-        // Would be pretty buggy
-        // case KC_RPRN/KC_LPRN could probably hack it with find macro like t/T and f/F
-        // case KC_RCBR/KC_RCBR ditto
-        // Really ambitious so won't work on any time soon
-        // case KC_Q could track be used to create QMK dynamic macros
-        // case KC_Z can't to a lot of that stuff but might be able to do some
-        // case KC_EXLM probably somesthing possible but would depend on system configuration
-        // case KC_AT macros again
-        // case KC_UNDS needs count movements to be useful
-        // case KC_RBRC/KC_LBRC needs a whole new mode with lots of hard commands
-        // case KC_PIPE needs count to be useful
+    // Set correct paste direction for when `vim_mode` isn't `NORMAL`.
+    // This is cumbersome, but less so then setting it manually in all the modes for each keycode.
+    if (vim_mode >= NORM_c && vim_mode <= NORM_yi) {
+      if (kc == KC_C || kc == KC_D || kc == KC_G || kc == S(KC_G) || kc == KC_J || kc == KC_K || kc == KC_Y) {
+        vim_put_inline = false;
+      } else {
+        vim_put_inline = true;
       }
-      return false;
+    }
 
-    // Change states
-    case NORM_c:
-      switch (kc) {
-        case KC_A:    vim_set_state(                NORM_ca);break;
-        case KC_B:    vim_cmd(vim_chg_word_back   , INSERT); break;
-        case KC_C:    vim_cmd(vim_chg_line        , INSERT); break; // does not preserve indent
-        case KC_E:    vim_cmd(vim_chg_word_end    , INSERT); break;
-        case KC_H:    vim_cmd(vim_chg_left        , INSERT); break;
-        case KC_I:    vim_set_state(                NORM_ci);break;
-        case KC_J:    vim_cmd(vim_chg_down        , INSERT); break;
-        case KC_K:    vim_cmd(vim_chg_up          , INSERT); break;
-        case KC_L:    vim_cmd(vim_chg_right       , INSERT); break;
-        case KC_W:    vim_cmd(vim_chg_word        , INSERT); break;
-        case KC_0:    vim_cmd(vim_chg_to_line_fst , INSERT); break;
-        case KC_DLR:  vim_cmd(vim_chg_to_line_end , INSERT); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
-    case NORM_ca:
-      switch (kc) {
-        case KC_W:    vim_cmd(vim_chg_a_word,       INSERT); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
-    case NORM_ci:
-      switch (kc) {
-        case KC_W:    vim_cmd(vim_chg_inner_word  , INSERT); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
+    // Deselect highlighted char
+    VIM_h;
 
-    // Delete states
-    case NORM_d:
-      switch (kc) {
-        case KC_A:    vim_set_state(                NORM_da);break;
-        case KC_B:    vim_cmd(vim_chg_word_back   , NORMAL); break;
-        case KC_D:    vim_cmd(vim_del_line        , NORMAL); break;
-        case KC_E:    vim_cmd(vim_chg_word_end    , NORMAL); break;
-        case KC_H:    vim_cmd(vim_chg_left        , NORMAL); break;
-        case KC_I:    vim_set_state(                NORM_di);break;
-        case KC_J:    vim_cmd(vim_del_down        , NORMAL); break;
-        case KC_K:    vim_cmd(vim_del_up          , NORMAL); break;
-        case KC_L:    vim_cmd(vim_chg_right       , NORMAL); break;
-        case KC_W:    vim_cmd(vim_chg_word        , NORMAL); break;
-        case KC_0:    vim_cmd(vim_chg_to_line_fst , NORMAL); break;
-        case KC_DLR:  vim_cmd(vim_del_to_line_end , NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
-    case NORM_da:
-      switch (kc) {
-        case KC_W:    vim_cmd(vim_chg_a_word      , NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
-    case NORM_di:
-      switch (kc) {
-        case KC_W:    vim_cmd(vim_chg_inner_word  , NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
+    // Execute Vim command or mode change based on keycode.
+    switch (vim_mode) {
 
-    // To char states
-    case NORM_f:
-      vim_to_char(kc); vim_set_state(               NORMAL);
-      return false;
-    case NORM_F:
-      vim_to_char_back(kc); vim_set_state(          NORMAL);
-      return false;
-    case NORM_t:
-      vim_till_char(kc); vim_set_state(             NORMAL);
-      return false;
-    case NORM_T:
-      vim_till_char_back(kc); vim_set_state(        NORMAL);
-      return false;
+      // Normal state
+      case NORMAL:
+        switch (kc) {
+          case KC_A:    VIM_TO_INSERT(VIM_a);           break;
+          case S(KC_A): VIM_TO_INSERT(VIM_A);           break;
+          case KC_B:    VIM_b;                          break;
+          case KC_C:    vim_mode = NORM_c;              break;
+          case S(KC_C): VIM_TO_INSERT(VIM_C);
+                        vim_put_inline = true;          break;
+          case KC_D:    vim_mode = NORM_d;              break;
+          case S(KC_D): VIM_D;
+                        vim_put_inline = true;          break;
+          case KC_E:    VIM_e;                          break;
+          case KC_F:    vim_mode = NORM_f;              break;
+          case S(KC_F): vim_mode = NORM_F;              break;
+          case KC_G:    vim_mode = NORM_g;              break;
+          case S(KC_G): VIM_G;                          break;
+          case KC_H:    VIM_h;                          break;
+          case KC_I:    vim_mode = INSERT;              break;
+          case S(KC_I): VIM_TO_INSERT(VIM_I);           break;
+          case KC_J:    VIM_j;                          break; // actually behaves like `gj`
+          case S(KC_J): VIM_J;                          break;
+          case KC_K:    VIM_k;                          break; // actually behaves like `gk`
+          case S(KC_K): VIM_K;                          break;
+          case KC_L:    VIM_l;                          break;
+          case KC_N:    (vim_find_forward)
+                        ? VIM_n : VIM_N;                break;
+          case S(KC_N): (vim_find_forward)
+                        ? VIM_N : VIM_n;                break;
+          case KC_O:    VIM_TO_INSERT(VIM_o);           break;
+          case S(KC_O): VIM_TO_INSERT(VIM_0);           break;
+          case KC_P:    if (vim_put_inline) {
+                          VIM_p_INLINE;
+                        } else {
+                          VIM_p_NEWLINE;
+                        }                               break;
+          case S(KC_P): if (vim_put_inline) {
+                          VIM_P_INLINE;
+                        } else {
+                          VIM_P_NEWLINE;
+                        }                               break;
+          case KC_R:    vim_mode = NORM_r;              break;
+          case S(KC_R): vim_mode = REPLACE;             break;
+          case C(KC_R): VIM_CTRLr;                      break; // moves back one space if nothing to redo
+          case KC_S:    VIM_TO_INSERT(VIM_s);
+                        vim_put_inline = true;          break;
+          case S(KC_S): VIM_TO_INSERT(VIM_S);
+                        vim_put_inline = true;          break;
+          case KC_T:    vim_mode = NORM_t;              break;
+          case S(KC_T): vim_mode = NORM_T;              break;
+          case KC_U:    VIM_u;                          break; // moves back one space if nothing to undo
+        //case KC_V     vim_mode = VISUAL;              break;
+        //case S(KC_V)  vim_mode = VIS_LN:              break;
+          case KC_W:    VIM_w;                          break;
+          case KC_X:    VIM_x;
+                        vim_put_inline = true;          break;
+          case S(KC_X): VIM_X;
+                        vim_put_inline = true;          break;
+          case KC_Y:    vim_mode = NORM_y;              break;
+          case S(KC_Y): VIM_Y;                          break;
+                        vim_put_inline = false;         break;
+          case KC_0:    VIM_0;                          break;
+          case KC_DLR:  VIM_DOLLAR;                     break;
+          case KC_HASH: VIM_HASH;
+                        vim_find_forward = false;       break;
+          case KC_ASTR: VIM_ASTERISK;
+                        vim_find_forward = true;        break;
+          case KC_MINS: VIM_MINUS;                      break;
+          case KC_PLUS: VIM_PLUS;                       break;
+          case KC_BSPC: VIM_BSPC;                       break;
+          case KC_DEL:  VIM_DELETE;                     break;
+          case KC_ENT:  VIM_ENTER;                      break;
+        //case KC_SCLN
+        //case KC_COLN
+        //case KC_COMM
+        //case KC_LT
+        //case KC_RT
+          case KC_SLSH:
+                        VIM_TO_INSERT(VIM_SLASH);
+                        vim_find_forward = true;        break;
+          case KC_QUES: VIM_TO_INSERT(VIM_QUES);
+                        vim_find_forward = false;       break;
+          case KC_SPC:  VIM_SPACE;                      break;
+          case KC_LEFT: VIM_LEFT;                       break;
+          case KC_UP:   VIM_UP;                         break;
+          case KC_DOWN: VIM_DOWN;                       break;
+          case KC_RGHT: VIM_RIGHT;                      break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
 
-    // Goto states
-    case NORM_g:
-      switch (kc) {
-        case KC_E:    vim_cmd(vim_word_back_end   , NORMAL); break;
-        case KC_G:    vim_cmd(vim_goto_line_first , NORMAL); break;
-        case KC_J:    vim_cmd(vim_down            , NORMAL); break;
-        case KC_K:    vim_cmd(vim_up              , NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
-    // Not implemented
-    // Cannot implement
-    // `gw` `gww` etc. which formats
-    // `gh` `gH` enters select mode which is not implemented
-    // `ga` to print Ascii value of character under cursor
-    // `gO` to show file specific outline
 
-    // Yank states
-    case NORM_y:
-      switch (kc) {
-        case KC_A:    vim_set_state(                NORM_ya);break;
-        case KC_B:    vim_cmd(vim_yank_word_back  , NORMAL); break;
-        case KC_E:    vim_cmd(vim_yank_word_end   , NORMAL); break;
-        case KC_H:    vim_cmd(vim_yank_left       , NORMAL); break;
-        case KC_I:    vim_set_state(                NORM_yi);break;
-        case KC_J:    vim_cmd(vim_yank_down       , NORMAL); break;
-        case KC_K:    vim_cmd(vim_yank_up         , NORMAL); break;
-        case KC_L:    vim_cmd(vim_yank_right      , NORMAL); break;
-        case KC_W:    vim_cmd(vim_yank_word       , NORMAL); break;
-        case KC_Y:    vim_cmd(vim_yank_line       , NORMAL); break;
-        case KC_0:    vim_cmd(vim_yank_to_line_fst, NORMAL); break;
-        case KC_DLR:  vim_cmd(vim_yank_to_line_end, NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
-    case NORM_ya:
-      switch (kc) {
-        case KC_W:    vim_cmd(vim_yank_a_word,      NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
-    case NORM_yi:
-      switch (kc) {
-        case KC_W:    vim_cmd(vim_yank_inner_word , NORMAL); break;
-        default:      vim_set_state(                NORMAL);
-      }
-      return false;
+      // Change states
+      case NORM_c:
+        switch (kc) {
+          case KC_A:    vim_mode = NORM_ca;         break;
+          case KC_B:    VIM_TO_INSERT(VIM_cb);      break;
+          case KC_C:    VIM_TO_INSERT(VIM_cc);      break; // does not preserve indent
+          case KC_E:    VIM_TO_INSERT(VIM_ce);      break;
+          case KC_G:    vim_mode = NORM_cg;         break;
+          case S(KC_G): VIM_TO_INSERT(VIM_cG);      break;
+          case KC_H:    VIM_TO_INSERT(VIM_ch);      break;
+          case KC_I:    vim_mode = NORM_ci;         break;
+          case KC_J:    VIM_TO_INSERT(VIM_cj);      break;
+          case KC_K:    VIM_TO_INSERT(VIM_ck);      break;
+          case KC_L:    VIM_TO_INSERT(VIM_cj);      break;
+          case KC_W:    VIM_TO_INSERT(VIM_cw);      break;
+          case KC_0:    VIM_TO_INSERT(VIM_c0);      break;
+          case KC_DLR:  VIM_TO_INSERT(VIM_cDOLLAR); break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+                                                    break;
+      case NORM_ca:
+        switch (kc) {
+          case KC_W:    VIM_TO_INSERT(VIM_caw);     break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+                                                    break;
+      case NORM_cg:
+        switch (kc) {
+          case KC_G:    VIM_TO_INSERT(VIM_cgg);     break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
 
-    // Replace states
-    case NORM_r:
-      switch (kc) {
-        case KC_ESC:  vim_cmd(vim_replace_end     , NORMAL); break;
-        default:
-          tap(kc);    vim_cmd(vim_replace_end     , NORMAL);
-      }
-      return false;
-    case REPLACE:
-      switch (kc) {
-        case KC_ESC:  vim_cmd(vim_replace_end     , NORMAL); break;
-        case KC_ENT:  vim_cmd(vim_replace_enter   , REPLACE);break;
-        default:
-          vim_replace(kc);
-      }
-      return false;
+      case NORM_ci:
+        switch (kc) {
+          case KC_W:    VIM_TO_INSERT(VIM_ciw);     break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
 
-    // this is never get triggered unless someone sets the state to something invalid
-    default:
-      vim_set_state(NORMAL);
-      return false;
+
+      // Delete states
+      case NORM_d:
+        switch (kc) {
+          case KC_A:    vim_mode = NORM_da;         break;
+          case KC_B:    VIM_TO_NORMAL(VIM_db);      break;
+          case KC_D:    VIM_TO_NORMAL(VIM_dd);      break;
+          case KC_E:    VIM_TO_NORMAL(VIM_de);      break;
+          case KC_G:    vim_mode = NORM_dg;         break;
+          case S(KC_G): VIM_TO_NORMAL(VIM_dG);      break;
+          case KC_H:    VIM_TO_NORMAL(VIM_dh);      break;
+          case KC_I:    vim_mode = NORM_di;         break;
+          case KC_J:    VIM_TO_NORMAL(VIM_dj);      break;
+          case KC_K:    VIM_TO_NORMAL(VIM_dk);      break;
+          case KC_L:    VIM_TO_NORMAL(VIM_dl);      break;
+          case KC_W:    VIM_TO_NORMAL(VIM_dw);      break;
+          case KC_0:    VIM_TO_NORMAL(VIM_d0);      break;
+          case KC_DLR:  VIM_TO_NORMAL(VIM_dDOLLAR); break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+                                                    break;
+      case NORM_da:
+        switch (kc) {
+          case KC_W:    VIM_TO_NORMAL(VIM_daw);     break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+
+      case NORM_dg:
+        switch (kc) {
+          case KC_G:    VIM_TO_NORMAL(VIM_dgg);     break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+                                                    break;
+      case NORM_di:
+        switch (kc) {
+          case KC_W:    VIM_TO_NORMAL(VIM_diw);     break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+
+
+      // Yank states
+      case NORM_y:
+        switch (kc) {
+          case KC_A:    vim_mode = NORM_ya;         break;
+          case KC_B:    VIM_TO_NORMAL(VIM_yb);      break;
+          case KC_E:    VIM_TO_NORMAL(VIM_ye);      break;
+          case KC_G:    vim_mode = NORM_yg;         break;
+          case S(KC_G): VIM_TO_NORMAL(VIM_yG);      break;
+          case KC_H:    VIM_TO_NORMAL(VIM_yh);      break;
+          case KC_I:    vim_mode = NORM_yi;         break;
+          case KC_J:    VIM_TO_NORMAL(VIM_yj);      break;
+          case KC_K:    VIM_TO_NORMAL(VIM_yk);      break;
+          case KC_L:    VIM_TO_NORMAL(VIM_yl);      break;
+          case KC_W:    VIM_TO_NORMAL(VIM_yw);      break;
+          case KC_Y:    VIM_TO_NORMAL(VIM_yy);      break;
+          case KC_0:    VIM_TO_NORMAL(VIM_y0);      break;
+          case KC_DLR:  VIM_TO_NORMAL(VIM_yDOLLAR); break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+
+      case NORM_ya:
+        switch (kc) {
+          case KC_W:    VIM_TO_NORMAL(VIM_yaw); break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+
+      case NORM_yg:
+        switch (kc) {
+          case KC_G:    VIM_TO_NORMAL(VIM_ygg); break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+
+      case NORM_yi:
+        switch (kc) {
+          case KC_W:    VIM_TO_NORMAL(VIM_yiw); break;
+          default:      vim_mode = NORMAL;
+        }
+        break;
+
+
+      // To char states
+      // TODO: reimplement
+      // case NORM_f:
+      //   vim_to_char(kc); vim_mode = NORMAL ;
+      //   return false;
+      // case NORM_F:
+      //   vim_to_char_back(kc); vim_mode = NORMAL ;
+      //   return false;
+      // case NORM_t:
+      //   vim_till_char(kc); vim_mode = NORMAL ;
+      //   return false;
+      // case NORM_T:
+      //   vim_till_char_back(kc); vim_mode = NORMAL ;
+      //   return false;
+
+
+      // Goto states
+      case NORM_g:
+        switch (kc) {
+          case KC_E: VIM_TO_NORMAL(VIM_ge); break;
+          case KC_G: VIM_TO_NORMAL(VIM_gg); break;
+          case KC_J: VIM_TO_NORMAL(VIM_gj); break;
+          case KC_K: VIM_TO_NORMAL(VIM_gk); break;
+          default:   vim_mode = NORMAL;
+        }
+        break;
+
+
+      // Replace states
+      case NORM_r:
+        switch (kc) {
+          case KC_ESC: vim_mode = NORMAL;    break;
+          default: VIM_REPLACE(kc);
+                   VIM_TO_NORMAL(VIM_h);
+        }
+        break;
+
+      case REPLACE:
+        switch (kc) {
+          case KC_ESC: VIM_TO_NORMAL(VIM_h); break;
+          case KC_ENT: TAP(KC_ENTER);        break;
+          default:     VIM_REPLACE(kc);
+
+        }
+        break;
+
+
+      // this is never get triggered unless someone sets the state to something invalid
+      default: vim_mode = NORMAL ;
+    }
+
+    // Select character right of cursor to simulate Vim cursor
+    VIM_SELECT_MOVE(VIM_l);
+
+    // Re-enable mods
+    set_mods(current_mods);
+
+    return false;
   }
+
+  // Need to return true so we capture mods and layer keys being pressed etc.
+  return true;
 }
 
-/**
- * Executes the a provided marco function and updates `vim_state`.
- *
- * Given that mods might be pressed that we don't want active while the macro is running, current
- * active mods are saved, then cleared while the macro is run, and then reset.
- *
- * @param `cmd`: a pointer to a macro function to execute
- * @param `new_state`: a `uint8_t` value defined in `vim_states enum`
- */
-void vim_cmd(void (*cmd)(void), uint8_t new_state) {
-  uint8_t current_mods = get_mods();
-  clear_mods();
-  (*cmd)();
-  set_mods(current_mods);
-  vim_set_state(new_state);
-}
-// }}}
-
-// Vim macro helpers {{{
-
-/**
- * Executes a Vim movement macro while holding shift to select text.
- * @param `*cmd`: pointer to macro function to execute
- */
-void vim_select_move(void (*cmd)(void)) {
-  press(KC_LSHIFT);
-  (*cmd)();
-  release(KC_LSHIFT);
-}
-
-/**
- * Executes a Vim movement macro,
- *   * while holding shift to select text, then
- *   * sending `⌘x` to cut the select text.
- * @param `*cmd`: pointer to macro function to execute
- */
-void vim_cut_move(void (*cmd)(void)) {
-  vim_select_move(cmd);
-  tap(G(KC_X));
-}
-
-/**
- * Executes a Vim movement macro,
- *   * while holding shift to select text, then
- *   * sending `⌘c` to cut the select text.
- * @param `*cmd`: pointer to macro function to execute
- */
-void vim_yank_move(void (*cmd)(void)) {
-  vim_select_move(cmd);
-  tap(G(KC_C));
-}
-
-// }}}
-
-// Vim movement macros functions {{{
-
-/**
- * Simulates Vim's `h` command by sending `←` to move the cursor left by one character.
- */
-void vim_left(void) { tap(KC_LEFT); }
-
-/**
- * Simulates Vim's `l` command by sending `→` to move the cursor right by one character.
- */
-void vim_right(void) { tap(KC_RIGHT); }
-
-/**
- * Simulates Vim's `k` and `gk` command by sending `↑` to move the cursor up one line.
- * (Where a line is a soft wrapped line, so it actually just behaves like `gk`.)
- */
-void vim_up(void) { tap(KC_UP); }
-
-/**
- * Simulates Vim's `j` and `gj` command by sending `↓` to move the cursor down one line.
- * (Where a line is a soft wrapped line, so it actually just behaves like `gj`.)
- */
-void vim_down(void) { tap(KC_DOWN); }
-
-/**
- * Simulates Vim's `b` command by sending `⌥←` to move the cursor to the beginning of the current
- * word.
- */
-void vim_word_back(void) { tap( LALT(KC_LEFT) ); }
-
-/**
- * Simulates Vim's `e` command by sending `⌥→` to move the cursor to the end of the current word.
- */
-void vim_word_end(void) { tap( LALT(KC_RIGHT) ); }
-
-/**
- * Simulates Vim's `ge` command by,
- *   * sending `⌥←` to move the cursor to the beginning of the current word, then
- *   * sending `⌥←` to move the cursor to the beginning of the previous work, and finally
- *   * sending `⌥→` to move the cursor to the end of that word.
- */
-void vim_word_back_end(void) {
-  vim_word_back();
-  vim_word_back();
-  vim_word_end();
-}
-
-/**
- * Simulates Vim's `w` command by,
- *   * sending `⌥→` to move the cursor to the end of the current word, then
- *   * sending `⌥→` to move the cursor to the end of the next word, and finally
- *   * sending `⌥←` to move the cursor to the beginning of that word.
- */
-void vim_word(void) {
-  vim_word_end();
-  vim_word_end();
-  vim_word_back();
-}
-
-/**
- * Simulates Vim's `0` command by sending `⌃a` to move the cursor to the beginning of the line.
- */
-void vim_line_first(void) { tap( LCTL(KC_A) ); }
-
-/**
- * Simulates Vim's `$` command by sending `⌃e` to move the cursor to the end of the line.
- */
-void vim_line_end(void) { tap( LCTL(KC_DOWN) ); }
-
-/**
- * Simulates Vim's `-` command by,
- *   * sending `⌃a` to move the cursor to the beginning of the line, then
- *   * sending `↑` to move the cursor up onto the line above, and finally
- *   * sending `⌃e` to move ensure the cursor to the beginning of that line.
- */
-void vim_line_up(void) {
-  vim_line_end();
-  vim_down();
-  vim_line_first();
-}
-
-/**
- * Simulates Vim's `+` and `⏎` commands by,
- *   * sending `⌃e` to move the cursor to the end of the line, then
- *   * sending `↑` to move up cursor onto the line above, and finally
- *   * sending `⌃a` to move ensure the cursor is at the beginning of that line.
- */
-void vim_line_down(void) {
-  vim_line_end();
-  vim_down();
-  vim_line_first();
-}
-
-/**
- * Simulates Vim's `gg` command by sending `⌘↑` to move the cursor the beginning of the first line.
- */
-void vim_goto_line_first(void) { tap( LGUI(KC_UP) ); }
-
-/**
- * Simulates Vim's `G` command by,
- * * sending `⌘↓` to move the cursor the end of the last line, then
- * * sending `⌃a` to move the cursor beginning of that line.
- */
-void vim_goto_line_last(void) {
-  tap( LGUI(KC_UP) );
-  vim_line_first();
-}
-// }}}
-
-// Vim insertion macro functions {{{
-
-/**
- * Simulates Vim's `o` command by,
- *   * sending `⌃e` to move the cursor to the end of the line, then
- *   * sending `⏎` to insert a new line.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_open(void) {
-  vim_line_end();
-  tap(KC_ENTER);
-}
-
-/**
- * Simulates Vim's `O` command by,
- *   * sending `⌃a` to move the cursor to the start of the line, then
- *   * sending `⏎` to insert a new line, and finally
- *   * sending `↑` to move up to the newly create line.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_open_above(void) {
-  vim_line_first();
-  tap(KC_ENTER);
-  tap(KC_UP);
-}
-// }}}
-
-// Vim change macro functions {{{
-
-/**
- * Simulates Vim's `ch` command by,
- *   * sending `⇧←` to select the character left of the cursor, then
- *   * sending `⌘x` to cut the select text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_left(void) { vim_cut_move(vim_left); }
-
-/**
- * Simulates Vim's `cl` `s` command by,
- *   * sending `⇧→` to select the character right of the cursor, then
- *   * sending `⌘x` to cut the select text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_right(void) { vim_cut_move(vim_right); }
-
-/**
- * Simulates Vim's `ck` command by,
- *   * sending `⌥↑` twice to move the cursor to the start of the line above, then
- *   * sending `⇧⌥↓` twice to select the text until the end of the starting line, and finally
- *   * sending `⌘x` to cut the select text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_up(void) {
-  vim_line_up();
-  vim_select_move(vim_line_end);
-  vim_line_down();
-  vim_cut_move(vim_line_end);
-}
-
-/**
- * Simulates Vim's `cj` command by,
- *   * sending `⌥↑` to move the cursor to the start of the line, then
- *   * sending `⇧⌥↓` twice to select the text until the end of the line below, and finally
- *   * sending `⌘x` to cut the select text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_down(void) {
-  vim_line_first();
-  vim_select_move(vim_line_end);
-  vim_cut_move(vim_line_end);
-}
-
-/**
- * Simulates Vim's `cb` command by,
- *   * sending `⇧⌥←` to select the text until the beginning of the current word, then
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_word_back(void) { vim_cut_move(vim_word_back); }
-
-/**
- * Simulates Vim's `ce` command by,
- *   * sending `⇧⌥→` to select the text until the end of current word, then
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_word_end(void) { vim_cut_move(vim_word_end); }
-
-/**
- * Simulates Vim's `cw` command by,
- *   * pressing `⇧` to enable text selection, then
- *     * sending `⌥→` to cursor to the end of the current word, then
- *     * sending `⌥→` to move the cursor to the end of the next word, then
- *     * sending `⌥←` to move the cursor to the beginning of that word, then
- *   * releasing `⇧` to end text selection, and finally
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_word(void) { vim_cut_move(vim_word); }
-
-/**
- * Simulates Vim's `caw` command by,
- *   * sending `⌥←` to move the cursor to the beginning of the word, then
- *   * pressing `⇧` to enable text selection, then
- *     * sending `⌥→` to cursor to the end of the current word, then
- *     * sending `⌥→` to move the cursor to the end of the next word, then
- *     * sending `⌥←` to move the cursor to the beginning of that word, then
- *   * releasing `⇧` to end text selection, and finally
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_a_word(void) {
-  vim_word_back();
-  vim_chg_word();
-}
-
-/**
- * Simulates Vim's `ciw` command by,
- *   * sending `⌥←` to move the cursor to the beginning of the word, then
- *   * sending `⇧⌥→` to select the text until the end of current word, and finally
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_inner_word(void) {
-  vim_word_back();
-  vim_chg_word_end();
-}
-
-/**
- * Simulates Vim's `c0` command by,
- *   * sending `⇧⌥↑` to select the text until the beginning of the line, then
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_to_line_fst(void) { vim_cut_move(vim_line_first); }
-
-/**
- * Simulates Vim's `C` and `c$`command by,
- *   * sending `⇧⌥↓` to select the text until the end of the line, then
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_to_line_end(void) { vim_cut_move(vim_line_end); }
-
-/**
- * Simulates Vim's `cc` and `S` commands by,
- *   * sending `⌥↑` to move the cursor to the start of the line, then
- *   * sending `⇧⌥↓` to select the text until the end of the line, and finally
- *   * sending `⌘x` to cut the selected text.
- * (Transition to insert mode handled by `vim_process_keycode()` function.)
- */
-void vim_chg_line(void) {
-  vim_line_first();
-  vim_chg_to_line_end();
-}
-// }}}
-
-// Vim find macro functions {{{
-
-void vim_find(void) { tap( G(KC_F) ); }
-
-void vim_find_next(void) { tap( G(KC_G) ); }
-
-void vim_find_prev(void) { tap( S(G(KC_G)) ); }
-
-void vim_find_word(void) {
-  vim_word_end();
-  vim_yank_inner_word();
-  vim_find();
-  tap( G(KC_V) );
-}
-// }}}
-
-// Vim till/to macro functions {{{
-
-void vim_till_to_find(uint16_t kc) {
-  vim_find();
-  tap(kc);
-  wait_ms(VIM_TO_TILL_WAIT*2);
-};
-
-void vim_till_char(uint16_t kc) {
-  vim_to_char(kc);
-  vim_left();
-}
-
-void vim_till_char_back(uint16_t kc) {
-  vim_to_char_back(kc);
-  vim_right();
-}
-
-void vim_to_char(uint16_t kc) {
-  vim_till_to_find(kc);
-  tap(KC_ESCAPE);
-  vim_left();
-}
-
-void vim_to_char_back(uint16_t kc) {
-  vim_till_to_find(kc);
-  vim_find_prev();
-  tap(KC_ESCAPE);
-  vim_left();
-}
-
-// }}}
-
-// Vim deletion macro functions {{{
-
-/**
- * Simulates Vim's `dk` command by,
- *   * sending `⌥↑` twice to move the cursor to the start of the line above, then
- *   * sending `⇧⌥↓` twice to select the text until the end of the starting line, then
- *   * sending `⌘x` to cut the select text, and finally
- *   * sending `⌦` to delete the empty line.
- */
-void vim_del_up(void) {
-  vim_chg_up();
-  tap(KC_DELETE);
-}
-
-/**
- * Simulates Vim's `dj` command by,
- *   * sending `⌥↑` to move the cursor to the start of the line, then
- *   * sending `⇧⌥↓` twice to select the text until the end of the line below, then
- *   * sending `⌘x` to cut the select text, and finally
- *   * sending `⌦` to delete the empty line.
- */
-void vim_del_down(void) {
-  vim_chg_down();
-  tap(KC_DELETE);
-}
-
-/**
- * Simulates Vim's `D` and `d$` command by,
- *   * sending `⇧⌥↓` to select the text until the end of the line, then
- *   * sending `⌘x` to cut the selected text, and finally
- *   * sending `←` to move the cursor one character to the left.
- */
-void vim_del_to_line_end(void) {
-  vim_chg_to_line_end();
-  tap(KC_LEFT);
-}
-
-/**
- * Simulates Vim's `dd` command by,
- *   * sending `⌥↑` to move the cursor to the start of the line, then
- *   * sending `⇧⌥↓` to select the text until the end of the line, then
- *   * sending `⌘x` to cut the selected text, and finally
- *   * sending `⌦` to delete the now empty line.
- */
-void vim_del_line(void) {
-  vim_chg_line();
-  tap(KC_DELETE);
-}
-// }}}
-
-// Vim put macro functions {{{
-
-/**
- * Simulates Vim's `p` command by sending `⌘v`.
- */
-void vim_put(void) { tap(G(KC_V)); }
-// }}}
-
-// Vim replace macro functions {{{
-
-/**
- * Simulates starting Vim's `r` command or entering REPLACE mode by,
- *   * sending `⇧→` to select the character right of the cursor.
- */
-void vim_replace_start(void) { vim_select_move(vim_right); }
-
-/** Simulates ending Vim's `r` command or exiting REPLACE mode by,
- *   * sending `←` to move the cursor back to it's orginal position.
- */
-void vim_replace_end(void) { vim_left(); }
-
-/**
- * Simulates pressing `⏎` while in Vim's REPLACE mode by,
- *   * sending `←` to deselect the currently selected character, then
- *   * sending `⏎` to create a new line, and finally
- *   * sending `⇧→` to select the character right of the cursor.
- */
-void vim_replace_enter(void) {
-  vim_replace_end();
-  tap(KC_ENTER);
-  vim_replace_start();
-}
-
-/**
- * Simulates typing a character while after starting Vim's `r` or while in REPLACE mode by,
- *   * sending `kc` to insert the typed chararter, then
- *   * sending `⇧→` to select the character right of the cursor.
- * @param `kc`: the QMK keycode to insert (`uint16_t`)
- */
-void vim_replace(uint16_t kc) {
-  tap(kc);
-  vim_replace_start();
-}
-// }}}
-
-// Vim yank macro functions {{{
-
-/**
- * Simulates Vim's `yh` command by,
- *   * sending `⇧←` to select the character left of the cursor, then
- *   * sending `⌘c` to copy the select text.
- */
-void vim_yank_left(void) { vim_yank_move(vim_left); }
-
-/**
- * Simulates Vim's `yl` command by,
- *   * sending `⇧→` to select the character right of the cursor, then
- *   * sending `⌘c` to copy the select text.
- */
-void vim_yank_right(void) { vim_yank_move(vim_right); }
-
-/**
- * Simulates Vim's `yk` command by,
- *   * sending `⌥↑` twice to move the cursor to the start of the line above, then
- *   * sending `⇧⌥↓` twice to select the text until the end of the starting line, and finally
- *   * sending `⌘c` to copy the select text.
- */
-void vim_yank_up(void) {
-  vim_line_first();
-  vim_line_first();
-  vim_select_move(vim_line_end);
-  vim_yank_move(vim_line_end);
-}
-
-/**
- * Simulates Vim's `yj` command by,
- *   * sending `⌥↑` to move the cursor to the start of the line, then
- *   * sending `⇧⌥↓` twice to select the text until the end of the line below, and finally
- *   * sending `⌘c` to copy the select text.
- */
-void vim_yank_down(void) {
-  vim_line_first();
-  vim_select_move(vim_line_end);
-  vim_cut_move(vim_line_end);
-}
-
-/**
- * Simulates Vim's `yb` command by,
- *   * sending `⇧⌥←` to select the text until the beginning of the current word, then
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_word_back(void) { vim_yank_move(vim_word_back); }
-
-/**
- * Simulates Vim's `ye` command by,
- *   * sending `⇧⌥→` to select the text until the end of current word, then
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_word_end(void) { vim_yank_move(vim_word_end); }
-
-/**
- * Simulates Vim's `yw` command by,
- *   * pressing `⇧` to enable text selection, then
- *     * sending `⌥→` to cursor to the end of the current word, then
- *     * sending `⌥→` to move the cursor to the end of the next word, then
- *     * sending `⌥←` to move the cursor to the beginning of that word, then
- *   * releasing `⇧` to end text selection, and finally
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_word(void) { vim_yank_move(vim_word); }
-
-/**
- * Simulates Vim's `yaw` command by,
- *   * sending `⌥←` to move the cursor to the beginning of the word, then
- *   * pressing `⇧` to enable text selection, then
- *     * sending `⌥→` to cursor to the end of the current word, then
- *     * sending `⌥→` to move the cursor to the end of the next word, then
- *     * sending `⌥←` to move the cursor to the beginning of that word, then
- *   * releasing `⇧` to end text selection, and finally
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_a_word(void) {
-  vim_word_back();
-  vim_yank_word();
-}
-
-/**
- * Simulates Vim's `yiw` command by,
- *   * sending `⌥←` to move the cursor to the beginning of the word, then
- *   * sending `⇧⌥→` to select the text until the end of current word, and finally
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_inner_word(void) {
-  vim_word_back();
-  vim_yank_word_end();
-}
-
-/**
- * Simulates Vim's `y0` command by,
- *   * sending `⇧⌥↑` to select the text until the beginning of the line, then
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_to_line_fst(void) { vim_yank_move(vim_line_first); }
-
-/**
- * Simulates Vim's `y$` command by,
- *   * sending `⇧⌥↓` to select the text until the end of the line, then
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_to_line_end(void) { vim_yank_move(vim_line_end); }
-
-/**
- * Simulates Vim's `yy` and `Y` commands by,
- *   * sending `⌥↑` to move the cursor to the start of the line, then
- *   * sending `⇧⌥↓` to select the text until the end of the line, and finally
- *   * sending `⌘c` to copy the selected text.
- */
-void vim_yank_line(void) {
-  vim_line_first();
-  vim_yank_to_line_end();
-}
-// }}}
-
-// Vim other macro functions {{{
-
-/**
- * Simulates Vim's `:` command to enter COMMAND mode by sending,
- *   * sending `⌘␣` by default to open Spotlight if `VIM_COMM_KC` isn't defined, or
- *   * sending `VIM_COMM_KC` if it is defined.
- */
-void vim_command(void) {
-  #ifndef VIM_COMM_KC
-    #define VIM_COMM_KC G(KC_SPC)
-  #endif
-  tap(VIM_COMM_KC);
-}
-
-void vim_lookup(void) { tap( C(G(KC_D)) ); }
-
-/**
- * Simulates Vim's `⌃r` command by sending `⇧⌘z`.
- */
-void vim_redo(void) { tap( S(G(KC_X)) ); }
-
-/**
- * Simulates Vim's `u` command by sending `⌘z`.
- */
-void vim_undo(void) { tap(G(KC_Z)); }
-// }}}
+// void vim_till_to_find(uint16_t kc) {
+//   vim_find();
+//   tap(kc);
+//   wait_ms(VIM_TO_TILL_WAIT*2);
+// };
+//
+// void vim_till_char(uint16_t kc) {
+//   vim_to_char(kc);
+//   vim_left();
+// }
+//
+// void vim_till_char_back(uint16_t kc) {
+//   vim_to_char_back(kc);
+//   vim_right();
+// }
+//
+// void vim_to_char(uint16_t kc) {
+//   vim_till_to_find(kc);
+//   tap(KC_ESCAPE);
+//   vim_left();
+// }
+//
+// void vim_to_char_back(uint16_t kc) {
+//   vim_till_to_find(kc);
+//   vim_find_prev();
+//   tap(KC_ESCAPE);
+//   vim_left();
+// }
