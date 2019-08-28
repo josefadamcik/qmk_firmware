@@ -45,6 +45,8 @@ enum katana_keycodes {
 #define K_SPCFN LT(_SYMB, KC_SPACE) /* Tap for space, hold for symbols layer */
 #define K_BSPFN LT(_SYMB, KC_BSPC)  /* Tap for backspace, hold for symbols layer */
 #define K_ENTFN LT(_SYMB, KC_ENT)  /* Tap for enter, hold for symbols layer */
+#define K_ENTLW LT(_LOWER, KC_ENT)  /* Tap for enter, hold for symbols layer */
+#define K_SPCRA LT(_RAISE, KC_SPACE) /* Tap for space, hold for symbols layer */
 /* Linux/win variants */
 #define W_LEFT_MOD MT(MOD_RCTL, KC_LEFT)
 #define W_DOWN_MOD MT(MOD_RALT, KC_DOWN)
@@ -118,11 +120,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     MO(_SYMB), KC_LGUI, KC_LALT, KC_LCTL,                   K_ENTFN, KC_ENT,  KC_SPACE,         W_LEFT_MOD,W_DOWN_MOD,W_UP_MOD,   KC_RIGHT,MO(_SYMB)
 ),
 [_M_CRKBD] = LAYOUT(
-    XXXXX,    XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
-    KC_ESC,    KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    XXXXX,          XXXXX,  KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
-    KC_TAB  ,KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    XXXXX,          XXXXX,  KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
-    KC_LSFT,KC_CTLZ, KC_ALTX,    KC_C,    KC_V,    KC_B,    XXXXX,  XXXXX,  XXXXX,  KC_K,    KC_M,    KC_COMM,KC_ALTDOT,KC_CTLSLSH,KC_RSFT,
-    XXXXX, XXXXX,      KC_LGUI, KC_LOWER,                  KC_ENT,  XXXXX,KC_SPACE,         KC_RAISE, KC_RGUI, XXXXX,     XXXXX,   XXXXX
+    XXXXX,    XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,  XXXXX,  XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+    KC_ESC,   KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    XXXXX,          XXXXX,  KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
+    KC_TAB,   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    XXXXX,          XXXXX,  KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
+    KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    XXXXX,  XXXXX,  XXXXX,  KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
 ),
 [_NUMB] = LAYOUT(
     _______, _______, _______, _______, _______, _______, _______, _______, _______,_______, KC_PSLS, KC_PAST, KC_PMNS, _______, _______,
@@ -153,25 +155,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
 ),
 [_LOWER] = LAYOUT(
-    XXXXX,    XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
-    KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    XXXXX,          XXXXX, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
-    KC_GRV,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, XXXXX,          XXXXX, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_DQT,
-    KC_LSFT,KC_CTLEQ,KC_ALTMINS,KC_PLUS,KC_LCBR,KC_RCBR, XXXXX,   XXXXX, XXXXX, KC_LBRC, KC_RBRC, KC_SCLN,KC_ALTCOLN,KC_CTLBSLS,KC_RSFT,
-    XXXXX, XXXXX,      KC_LGUI, KC_LOWER,                  KC_ENT,  XXXXX,KC_SPACE,         KC_RAISE, KC_RGUI, XXXXX,     XXXXX,   XXXXX
+    XXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,  XXXXX,  KC_F7, KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,   XXXXX,
+    KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    XXXXX,          XXXXX, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,     KC_BSPC,
+    KC_GRV,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, XXXXX,          XXXXX, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,  KC_DQT,
+    KC_LSFT, KC_EQL,  KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, XXXXX,   XXXXX, XXXXX, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS,  KC_RSFT,
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,       KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
 ),
 [_RAISE] = LAYOUT(
-    XXXXX,     XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
-    KC_ESC,    XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, M_PRVWD,   KC_UP, M_NXTWD,    XXXXX,   KC_BSPC,
-    KC_TAB,KC_LALT, KC_LCTL, KC_LSFT,   XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
+    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_CRKBD,   XXXXX,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+    KC_ESC,  KC_INS,  KC_PSCR,  KC_APP,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, M_PRVWD,   KC_UP, M_NXTWD,    XXXXX,   KC_BSPC,
+    KC_TAB,  KC_LALT, KC_LCTL,  KC_LSFT,  XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
     KC_LSFT,  M_UNDO,   M_CUT,  M_COPY, M_PASTE,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,   M_LSTRT,   XXXXX,  M_LEND,    XXXXX, KC_RSFT,
-    XXXXX, XXXXX,      KC_LGUI, KC_LOWER,                  KC_ENT,  XXXXX,KC_SPACE,         KC_RAISE, KC_RALT, XXXXX,      XXXXX,   XXXXX
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
 ),
 [_ADJUST] = LAYOUT(
-    XXXXX,    XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX, XXXXX,  XXXXX,  XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
-    KC_F1,    KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,    XXXXX,          XXXXX, KC_F7, KC_F8,   KC_F9,  KC_F10,  KC_F11,  KC_F12,
-    XXXXX,    XXXXX,   RESET,   XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_INS, KC_PSCR, KC_APP, XXXXX,   XXXXX,   XXXXX,
-    KC_LSFT, M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,XXXXX,   XXXXX,   XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,   KC_RSFT,
-    XXXXX, XXXXX,      KC_LGUI, KC_LOWER,                  KC_ENT,  XXXXX,KC_SPACE,         KC_RAISE, KC_RALT, XXXXX,     XXXXX,   XXXXX
+    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_CRKBD, XXXXX,  XXXXX,  XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+    XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX,   XXXXX,  XXXXX,  XXXXX,  XXXXX,
+    XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,
+    KC_LSFT, XXXXX, XXXXX, XXXXX,   XXXXX,    XXXXX,   XXXXX,   XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,   KC_RSFT,
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
 )
 };
 
