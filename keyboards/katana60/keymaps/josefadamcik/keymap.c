@@ -21,13 +21,16 @@ enum katana_layers {
     _M_QWERTY,
     _W_COLEMAK,
     _W_QWERTY,
-    _M_CRKBD,
+    _M_SPLIT,
+    _W_SPLIT,
     _NUMB,
     _SYMB,
     _M_EXT,
     _W_EXT,
-    _LOWER,
-    _RAISE,
+    _M_LOWER,
+    _M_RAISE,
+    _W_LOWER,
+    _W_RAISE,
     _ADJUST,
 };
 
@@ -36,18 +39,23 @@ enum katana_keycodes {
     M_QWERTY,
     W_COLEMAK,
     W_QWERTY,
-    M_CRKBD,
-    LOWER,
-    RAISE,
+    M_SPLIT,
+    W_SPLIT,
+    M_LOWER,
+    M_RAISE,
+    W_LOWER,
+    W_RAISE,
     ADJUST,
 };
 
-#define K_SPCEXW LT(_W_EXT, KC_SPACE) /* Tap for space, hold for symbols layer */
-#define K_SPCEXM LT(_M_EXT, KC_SPACE) /* Tap for space, hold for symbols layer */
-#define K_BSPFN LT(_SYMB, KC_BSPC)  /* Tap for backspace, hold for symbols layer */
-#define K_ENTFN LT(_SYMB, KC_ENT)  /* Tap for enter, hold for symbols layer */
-#define K_ENTLW LT(_LOWER, KC_ENT)  /* Tap for enter, hold for symbols layer */
-#define K_SPCRA LT(_RAISE, KC_SPACE) /* Tap for space, hold for symbols layer */
+#define K_SPCEXW LT(_W_EXT, KC_SPACE) /* Tap for space, hold for layer */
+#define K_SPCEXM LT(_M_EXT, KC_SPACE) /* Tap for space, hold for layer */
+#define K_BSPFN LT(_SYMB, KC_BSPC)  /* Tap for backspace, hold for layer */
+#define K_ENTFN LT(_SYMB, KC_ENT)  /* Tap for enter, hold for layer */
+#define M_ENTLW LT(_M_LOWER, KC_ENT)  /* Tap for enter, hold for layer */
+#define M_SPCRA LT(_M_RAISE, KC_SPACE) /* Tap for space, hold for layer */
+#define W_ENTLW LT(_W_LOWER, KC_ENT)  /* Tap for enter, hold for layer */
+#define W_SPCRA LT(_W_RAISE, KC_SPACE) /* Tap for space, hold for layer */
 /* Linux/win variants */
 #define W_LEFT_MOD MT(MOD_RCTL, KC_LEFT)
 #define W_DOWN_MOD MT(MOD_RALT, KC_DOWN)
@@ -120,12 +128,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LSFT,   KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_EQL,  KC_DEL,  KC_BSLS, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
     MO(_SYMB), KC_LGUI, KC_LALT, KC_LCTL,                   K_ENTFN, KC_ENT,  K_SPCEXW,         W_LEFT_MOD,W_DOWN_MOD,W_UP_MOD,   KC_RIGHT,MO(_SYMB)
 ),
-[_M_CRKBD] = LAYOUT(
+[_M_SPLIT] = LAYOUT(
     XXXXX,    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,  XXXXX,   KC_6,   KC_7,    KC_8,    KC_9,    KC_0,    XXXXX,   XXXXX,
     KC_ESC,   KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    XXXXX,          XXXXX,  KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
     KC_TAB,   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    XXXXX,          XXXXX,  KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
     KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    XXXXX,  XXXXX,  XXXXX,  KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 M_ENTLW,  XXXXX,  M_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+),
+[_W_SPLIT] = LAYOUT(
+    XXXXX,    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,  XXXXX,   KC_6,   KC_7,    KC_8,    KC_9,    KC_0,    XXXXX,   XXXXX,
+    KC_ESC,   KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    XXXXX,          XXXXX,  KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
+    KC_TAB,   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    XXXXX,          XXXXX,  KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
+    KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    XXXXX,  XXXXX,  XXXXX,  KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+    XXXXX,    KC_LGUI, KC_LALT, KC_LCTL,                 W_ENTLW,  XXXXX,  W_SPCRA,         KC_RCTL, KC_RALT, KC_RGUI,   XXXXX,   XXXXX
 ),
 [_NUMB] = LAYOUT(
     _______, _______, _______, _______, _______, _______, _______, _______, _______,_______, KC_PSLS, KC_PAST, KC_PMNS, _______, _______,
@@ -142,40 +157,55 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______, _______,                   KC_DEL,  _______, _______,          _______, _______, _______, _______, _______
 ),
 [_M_EXT] = LAYOUT(
-    RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_CRKBD,_______, _______, _______, _______, _______, _______, _______, _______, _______,
+    RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,_______, _______, _______, _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, M_PRVWD, KC_UP,   M_NXTWD, _______, _______,
     _______, KC_LALT, KC_LCTL, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
     _______, M_UNDO,  M_CUT,   M_COPY,  M_PASTE, _______, _______, _______, _______, _______, M_LSTRT, _______, M_LEND,  _______, _______,
     _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
 ),
 [_W_EXT] = LAYOUT(
-    RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_CRKBD,_______, _______, _______, _______, _______, _______, _______, _______, _______,
+    RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,W_SPLIT, _______, _______, _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, W_PRVWD, KC_UP,   W_NXTWD, _______, _______,
     _______, KC_LALT, KC_LCTL, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
     _______, W_UNDO,  W_CUT,   W_COPY,  W_PASTE, _______, _______, _______, _______, _______, W_LSTRT, _______, W_LEND,  _______, _______,
     _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
 ),
-[_LOWER] = LAYOUT(
+[_M_LOWER] = LAYOUT(
     XXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,  XXXXX,  KC_F7, KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,   XXXXX,
     KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    XXXXX,          XXXXX, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,     KC_BSPC,
     KC_GRV,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, XXXXX,          XXXXX, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,  KC_DQT,
     KC_LSFT, KC_EQL,  KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, XXXXX,   XXXXX, XXXXX, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS,  KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,       KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 M_ENTLW,  XXXXX,  M_SPCRA,       KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
 ),
-[_RAISE] = LAYOUT(
-    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_CRKBD,   XXXXX,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+[_M_RAISE] = LAYOUT(
+    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,  W_SPLIT,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
     KC_ESC,  KC_INS,  KC_PSCR,  KC_APP,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, M_PRVWD,   KC_UP, M_NXTWD,    XXXXX,   KC_BSPC,
     KC_TAB,  KC_LALT, KC_LCTL,  KC_LSFT,  XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
     KC_LSFT,  M_UNDO,   M_CUT,  M_COPY, M_PASTE,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,   M_LSTRT,   XXXXX,  M_LEND,    XXXXX, KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                   M_ENTLW,  XXXXX,  M_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
 ),
-[_ADJUST] = LAYOUT(
-    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_CRKBD, XXXXX,  XXXXX,  XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
-    XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX,   XXXXX,  XXXXX,  XXXXX,  XXXXX,
-    XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,
-    KC_LSFT, XXXXX, XXXXX, XXXXX,   XXXXX,    XXXXX,   XXXXX,   XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,   KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 K_ENTLW,  XXXXX,  K_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
-)
+[_W_LOWER] = LAYOUT(
+    XXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   XXXXX,  KC_F7, KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,   XXXXX,
+    KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    XXXXX,          XXXXX, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,     KC_BSPC,
+    KC_GRV,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, XXXXX,          XXXXX, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,  KC_DQT,
+    KC_LSFT, KC_EQL,  KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, XXXXX,   XXXXX, XXXXX, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS,  KC_RSFT,
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 W_ENTLW,  XXXXX,  W_SPCRA,       KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+),
+[_W_RAISE] = LAYOUT(
+    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,  W_SPLIT,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+    KC_ESC,  KC_INS,  KC_PSCR,  KC_APP,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, W_PRVWD,   KC_UP, W_NXTWD,    XXXXX,   KC_BSPC,
+    KC_TAB,  KC_LALT, KC_LCTL,  KC_LSFT,  XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
+    KC_LSFT, M_UNDO,   M_CUT,  M_COPY, M_PASTE,   XXXXX,     XXXXX,  XXXXX,  XXXXX, XXXXX,   W_LSTRT,   XXXXX,  W_LEND,    XXXXX, KC_RSFT,
+    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                   W_ENTLW,  XXXXX,  W_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+)//,
+// /* not used = not properly defined */
+// [_ADJUST] = LAYOUT(
+//     RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT, XXXXX,  XXXXX,  XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+//     XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX,   XXXXX,  XXXXX,  XXXXX,  XXXXX,
+//     XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,
+//     KC_LSFT, XXXXX, XXXXX, XXXXX,   XXXXX,    XXXXX,   XXXXX,   XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,   KC_RSFT,
+//     XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 W_ENTLW,  XXXXX,  W_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+// )
 };
 
 void matrix_init_user(void) {
@@ -221,40 +251,66 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
             break;
-        case M_CRKBD:
+        case M_SPLIT:
             if (record->event.pressed) {
-                set_single_persistent_default_layer(_M_CRKBD);
+                set_single_persistent_default_layer(_M_SPLIT);
             }
             return false;
             break;
-        case LOWER:
+        case W_SPLIT:
             if (record->event.pressed) {
-                layer_on(_LOWER);
-                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+                set_single_persistent_default_layer(_W_SPLIT);
+            }
+            return false;
+            break;
+        case W_LOWER:
+            if (record->event.pressed) {
+                layer_on(_W_LOWER);
+                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             } else {
-                layer_off(_LOWER);
-                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+                layer_off(_W_LOWER);
+                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             }
             return false;
             break;
-        case RAISE:
+        case W_RAISE:
             if (record->event.pressed) {
-                layer_on(_RAISE);
-                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+                layer_on(_W_RAISE);
+                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             } else {
-                layer_off(_RAISE);
-                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+                layer_off(_W_RAISE);
+                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             }
             return false;
             break;
-        case ADJUST:
+        case M_LOWER:
             if (record->event.pressed) {
-                layer_on(_ADJUST);
+                layer_on(_M_LOWER);
+                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
             } else {
-                layer_off(_ADJUST);
+                layer_off(_M_LOWER);
+                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
             }
             return false;
             break;
+        case M_RAISE:
+            if (record->event.pressed) {
+                layer_on(_M_RAISE);
+                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
+            } else {
+                layer_off(_M_RAISE);
+                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
+            }
+            return false;
+            break;
+        // case ADJUST:
+        // if (record->event.pressed) {
+                // layer_on(_ADJUST);
+            // } else {
+            //     layer_off(_ADJUST);
+            // }
+            // return false;
+            // break;
         }
     return true;
 }
