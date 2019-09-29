@@ -133,14 +133,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_ESC,   KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    XXXXX,          XXXXX,  KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
     KC_TAB,   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    XXXXX,          XXXXX,  KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
     KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    XXXXX,  XXXXX,  XXXXX,  KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 M_ENTLW,  XXXXX,  M_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    KC_LCTL,  KC_LALT, KC_LGUI, M_LOWER,                   KC_ENT, XXXXX,  KC_SPACE,        M_RAISE, KC_RGUI, KC_RALT, KC_RCTL,   XXXXX
 ),
 [_W_SPLIT] = LAYOUT(
     XXXXX,    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,  XXXXX,   KC_6,   KC_7,    KC_8,    KC_9,    KC_0,    XXXXX,   XXXXX,
     KC_ESC,   KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    XXXXX,          XXXXX,  KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
     KC_TAB,   KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    XXXXX,          XXXXX,  KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
     KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    XXXXX,  XXXXX,  XXXXX,  KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-    XXXXX,    KC_LGUI, KC_LALT, KC_LCTL,                 W_ENTLW,  XXXXX,  W_SPCRA,         KC_RCTL, KC_RALT, KC_RGUI,   XXXXX,   XXXXX
+    KC_LGUI,  KC_LALT, KC_LCTL, W_LOWER,                   KC_ENT, XXXXX, KC_SPACE,         W_RAISE, KC_RCTL, KC_RALT, KC_RGUI,   XXXXX
 ),
 [_NUMB] = LAYOUT(
     _______, _______, _______, _______, _______, _______, _______, _______, _______,_______, KC_PSLS, KC_PAST, KC_PMNS, _______, _______,
@@ -175,28 +175,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    XXXXX,          XXXXX, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,     KC_BSPC,
     KC_GRV,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, XXXXX,          XXXXX, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,  KC_DQT,
     KC_LSFT, KC_EQL,  KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, XXXXX,   XXXXX, XXXXX, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS,  KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 M_ENTLW,  XXXXX,  M_SPCRA,       KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    KC_LCTL,  KC_LALT, KC_LGUI, M_LOWER,                  KC_ENT, XXXXX,  KC_SPACE,        M_RAISE, KC_RGUI, KC_RALT, KC_RCTL,   XXXXX
+
 ),
 [_M_RAISE] = LAYOUT(
     RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,  W_SPLIT,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
     KC_ESC,  KC_INS,  KC_PSCR,  KC_APP,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, M_PRVWD,   KC_UP, M_NXTWD,    XXXXX,   KC_BSPC,
     KC_TAB,  KC_LALT, KC_LCTL,  KC_LSFT,  XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
     KC_LSFT,  M_UNDO,   M_CUT,  M_COPY, M_PASTE,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,   M_LSTRT,   XXXXX,  M_LEND,    XXXXX, KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                   M_ENTLW,  XXXXX,  M_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    KC_LCTL,  KC_LALT, KC_LGUI, M_LOWER,                     KC_ENT, XXXXX,  KC_SPACE,        M_RAISE, KC_RGUI, KC_RALT, KC_RCTL,   XXXXX
 ),
 [_W_LOWER] = LAYOUT(
     XXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   XXXXX,  KC_F7, KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,   XXXXX,
     KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    XXXXX,          XXXXX, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,     KC_BSPC,
     KC_GRV,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, XXXXX,          XXXXX, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,  KC_DQT,
     KC_LSFT, KC_EQL,  KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, XXXXX,   XXXXX, XXXXX, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS,  KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 W_ENTLW,  XXXXX,  W_SPCRA,       KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    KC_LGUI,  KC_LALT, KC_LCTL, W_LOWER,                  KC_ENT, XXXXX, KC_SPACE,         W_RAISE, KC_RCTL, KC_RALT, KC_RGUI,   XXXXX
 ),
 [_W_RAISE] = LAYOUT(
     RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,  W_SPLIT,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
     KC_ESC,  KC_INS,  KC_PSCR,  KC_APP,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, W_PRVWD,   KC_UP, W_NXTWD,    XXXXX,   KC_BSPC,
     KC_TAB,  KC_LALT, KC_LCTL,  KC_LSFT,  XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
     KC_LSFT, M_UNDO,   M_CUT,  M_COPY, M_PASTE,   XXXXX,     XXXXX,  XXXXX,  XXXXX, XXXXX,   W_LSTRT,   XXXXX,  W_LEND,    XXXXX, KC_RSFT,
-    XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                   W_ENTLW,  XXXXX,  W_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
+    KC_LGUI,  KC_LALT, KC_LCTL, W_LOWER,                     KC_ENT, XXXXX, KC_SPACE,         W_RAISE, KC_RCTL, KC_RALT, KC_RGUI,   XXXXX
 )//,
 // /* not used = not properly defined */
 // [_ADJUST] = LAYOUT(
