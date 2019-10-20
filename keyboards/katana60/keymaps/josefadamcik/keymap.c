@@ -68,6 +68,7 @@ enum katana_keycodes {
 #define W_NXTWD LCTL(KC_RIGHT)
 #define W_LSTRT KC_HOME
 #define W_LEND KC_END
+#define W_DLINE LCTL(KC_BSPC)
 /* Mac variants */
 #define M_LEFT_MOD MT(MOD_RGUI, KC_LEFT)
 #define M_DOWN_MOD MT(MOD_RALT, KC_DOWN)
@@ -80,6 +81,8 @@ enum katana_keycodes {
 #define M_NXTWD LALT(KC_RIGHT)
 #define M_LSTRT LGUI(KC_LEFT)
 #define M_LEND LGUI(KC_RIGHT)
+#define M_DLINE LGUI(KC_BSPC)
+
 #define XXXXX KC_NO
 #define KC_CTLTB CTL_T(KC_TAB)
 #define KC_LOWER LOWER
@@ -158,14 +161,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 [_M_EXT] = LAYOUT(
     RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,_______, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, M_PRVWD, KC_UP,   M_NXTWD, _______, _______,
+    _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, M_PRVWD, KC_UP,   M_NXTWD, M_DLINE, _______,
     _______, KC_LALT, KC_LCTL, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
     _______, M_UNDO,  M_CUT,   M_COPY,  M_PASTE, _______, _______, _______, _______, _______, M_LSTRT, _______, M_LEND,  _______, _______,
     _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
 ),
 [_W_EXT] = LAYOUT(
     RESET  ,M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,W_SPLIT, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, W_PRVWD, KC_UP,   W_NXTWD, _______, _______,
+    _______, _______, _______, _______, _______, _______, _______,          _______, KC_PGUP, W_PRVWD, KC_UP,   W_NXTWD, W_DLINE, _______,
     _______, KC_LALT, KC_LCTL, KC_LSFT, _______, KC_CAPS, _______,          _______, KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,KC_DEL,  _______,
     _______, W_UNDO,  W_CUT,   W_COPY,  W_PASTE, _______, _______, _______, _______, _______, W_LSTRT, _______, W_LEND,  _______, _______,
     _______, _______, _______, _______,                   _______, _______, _______,          _______, _______, _______, _______, _______
