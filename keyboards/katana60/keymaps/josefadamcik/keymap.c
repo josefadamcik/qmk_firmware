@@ -182,7 +182,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 ),
 [_M_RAISE] = LAYOUT(
-    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,  W_SPLIT,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+    RESET,    XXXXX,    XXXXX,   XXXXX,   XXXXX,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
     KC_ESC,  KC_INS,  KC_PSCR,  KC_APP,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, M_PRVWD,   KC_UP, M_NXTWD,   M_DLINE,  KC_BSPC,
     KC_TAB,  KC_LALT, KC_LCTL,  KC_LSFT,  XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
     KC_LSFT,  M_UNDO,   M_CUT,  M_COPY, M_PASTE,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,   M_LSTRT,   XXXXX,  M_LEND,    XXXXX, KC_RSFT,
@@ -196,20 +196,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LGUI,  KC_LALT, KC_LCTL, W_LOWER,                  KC_ENT, XXXXX, KC_SPACE,         W_RAISE, KC_RCTL, KC_RALT, KC_RGUI,   XXXXX
 ),
 [_W_RAISE] = LAYOUT(
-    RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT,  W_SPLIT,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
+    RESET,   XXXXX,   XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,  XXXXX,  XXXXX, XXXXX,     XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
     KC_ESC,  KC_INS,  KC_PSCR,  KC_APP,   XXXXX,   XXXXX,    XXXXX,          XXXXX, KC_PGUP, W_PRVWD,   KC_UP, W_NXTWD,   W_DLINE,  KC_BSPC,
     KC_TAB,  KC_LALT, KC_LCTL,  KC_LSFT,  XXXXX, KC_CAPS,    XXXXX,          XXXXX, KC_PGDN, KC_LEFT, KC_DOWN,KC_RIGHT,   KC_DEL,   XXXXX,
     KC_LSFT, M_UNDO,   M_CUT,  M_COPY, M_PASTE,   XXXXX,     XXXXX,  XXXXX,  XXXXX, XXXXX,   W_LSTRT,   XXXXX,  W_LEND,    XXXXX, KC_RSFT,
     KC_LGUI,  KC_LALT, KC_LCTL, W_LOWER,                     KC_ENT, XXXXX, KC_SPACE,         W_RAISE, KC_RCTL, KC_RALT, KC_RGUI,   XXXXX
-)//,
-// /* not used = not properly defined */
-// [_ADJUST] = LAYOUT(
-//     RESET,  M_COLEMAK,M_QWERTY,W_COLEMAK,W_QWERTY,M_SPLIT, XXXXX,  XXXXX,  XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,   XXXXX,
-//     XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX,   XXXXX,  XXXXX,  XXXXX,  XXXXX,
-//     XXXXX,   XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,    XXXXX,          XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,
-//     KC_LSFT, XXXXX, XXXXX, XXXXX,   XXXXX,    XXXXX,   XXXXX,   XXXXX, XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX,   XXXXX,   KC_RSFT,
-//     XXXXX,    KC_LCTL, KC_LALT, KC_LGUI,                 W_ENTLW,  XXXXX,  W_SPCRA,         KC_RGUI, KC_RALT, KC_RCTL,   XXXXX,   XXXXX
-// )
+),
+[_ADJUST] = LAYOUT(
+    XXXXX,  XXXXX,  XXXXX,     XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,  XXXXX,  XXXXX,  XXXXX,   XXXXX,   XXXXX,   XXXXX,  XXXXX,
+    RESET,M_COLEMAK,M_QWERTY,M_SPLIT,   XXXXX,   XXXXX,   XXXXX,           XXXXX,  XXXXX,   XXXXX,   XXXXX,   XXXXX,  XXXXX,  XXXXX,
+    XXXXX,W_COLEMAK,W_QWERTY,W_SPLIT,   XXXXX,   XXXXX,   XXXXX,           XXXXX,  XXXXX,   XXXXX,   XXXXX,   XXXXX,  XXXXX,   XXXXX,
+    XXXXX,  XXXXX, XXXXX,      XXXXX,   XXXXX,   XXXXX,   XXXXX,   XXXXX,  XXXXX,  XXXXX,  XXXXX,   XXXXX,   XXXXX,   XXXXX,  XXXXX,
+    XXXXX,    XXXXX, XXXXX, XXXXX,                         XXXXX,  XXXXX,  XXXXX,          XXXXX, XXXXX, XXXXX,   XXXXX,   XXXXX
+)
 };
 
 void matrix_init_user(void) {
@@ -270,51 +269,51 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case W_LOWER:
             if (record->event.pressed) {
                 layer_on(_W_LOWER);
-                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
+                update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             } else {
                 layer_off(_W_LOWER);
-                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
+                update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             }
             return false;
             break;
         case W_RAISE:
             if (record->event.pressed) {
                 layer_on(_W_RAISE);
-                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
+                update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             } else {
                 layer_off(_W_RAISE);
-                // update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
+                update_tri_layer_RGB(_W_LOWER, _W_RAISE, _ADJUST);
             }
             return false;
             break;
         case M_LOWER:
             if (record->event.pressed) {
                 layer_on(_M_LOWER);
-                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
+                update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
             } else {
                 layer_off(_M_LOWER);
-                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
+                update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
             }
             return false;
             break;
         case M_RAISE:
             if (record->event.pressed) {
                 layer_on(_M_RAISE);
-                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
+                update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
             } else {
                 layer_off(_M_RAISE);
-                // update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
+                update_tri_layer_RGB(_M_LOWER, _M_RAISE, _ADJUST);
             }
             return false;
             break;
-        // case ADJUST:
-        // if (record->event.pressed) {
-                // layer_on(_ADJUST);
-            // } else {
-            //     layer_off(_ADJUST);
-            // }
-            // return false;
-            // break;
+        case ADJUST:
+            if (record->event.pressed) {
+                layer_on(_ADJUST);
+            } else {
+                layer_off(_ADJUST);
+            }
+            return false;
+            break;
         }
     return true;
 }
